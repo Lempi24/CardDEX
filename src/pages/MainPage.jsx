@@ -18,6 +18,7 @@ const MainPage = () => {
 	];
 	const [isCardInfoVisiable, setIsCardInfoVisiable] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
+	const [isCameraVisiable, setIsCameraVisiable] = useState(false);
 	const handleCardClick = (id) => {
 		return () => {
 			setIsCardInfoVisiable((prevState) => !prevState);
@@ -27,7 +28,9 @@ const MainPage = () => {
 			}
 		};
 	};
-
+	const handleAddCard = () => {
+		setIsCameraVisiable(true);
+	};
 	return (
 		<main className='relative bg-main min-h-screen w-full text-text flex items-center justify-center'>
 			<div className='flex items-center justify-center w-full pt-4 absolute top-0'>
@@ -54,8 +57,15 @@ const MainPage = () => {
 					))}
 				</div>
 			</div>
-			<CameraPanel />
-			<button className='outside-circle fixed w-10 h-10 bg-binder bottom-10 border-2 border-accent1 rounded-3xl'></button>
+			{isCameraVisiable && (
+				<CameraPanel onClose={() => setIsCameraVisiable(false)} />
+			)}
+			<button
+				onClick={handleAddCard}
+				className='fixed bottom-0 m-4 text-accent1'
+			>
+				+ Add card
+			</button>
 		</main>
 	);
 };

@@ -7,6 +7,7 @@
 	--color-filling: #3d4a5f;
 	--color-text: #e0e0e0;
 	--color-binder: #1b1b1b;
+	--color-main-transparent: #1a1a2e71;
 }
 @layer base {
 	html {
