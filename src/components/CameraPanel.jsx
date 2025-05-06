@@ -7,9 +7,8 @@ const PokemonScanner = ({ onClose }) => {
 	const canvasRef = useRef(null);
 	const [pokemonName, setPokemonName] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState('');
 	const [apiPokemonNames, setApiPokemonNames] = useState(null);
-	const pokeApiKey = import.meta.env.VITE_POKE_API_KEY;
+	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
 
 	useEffect(() => {
 		const getNames = async () => {
@@ -44,7 +43,6 @@ const PokemonScanner = ({ onClose }) => {
 	const sendToGoogleVision = async (imageBase64) => {
 		try {
 			setIsLoading(true);
-			setError('');
 			const base64WithoutPrefix = imageBase64.replace(
 				/^data:image\/jpeg;base64,/,
 				''
@@ -58,7 +56,7 @@ const PokemonScanner = ({ onClose }) => {
 				],
 			};
 			const response = await fetch(
-				`https://vision.googleapis.com/v1/images:annotate?key=${pokeApiKey}`,
+				`https://vision.googleapis.com/v1/images:annotate?key=${googleVisionApiKey}`,
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -75,7 +73,6 @@ const PokemonScanner = ({ onClose }) => {
 			}
 		} catch (err) {
 			console.error('Błąd OCR:', err);
-			setError('Błąd rozpoznawania tekstu');
 		} finally {
 			setIsLoading(false);
 		}
