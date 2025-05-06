@@ -8,6 +8,7 @@
 	--color-text: #e0e0e0;
 	--color-binder: #1b1b1b;
 	--color-main-transparent: #1a1a2e71;
+	--color-filling-transparent: #3d4a5f67;
 }
 @layer base {
 	html {
@@ -24,9 +25,9 @@
 	background-image: url(../img/border-decor.png);
 	background-repeat: no-repeat;
 	background-size: contain;
-	image-rendering: pixelated; /* Dla nowoczesnych przeglądarek */
-	image-rendering: -moz-crisp-edges; /* Firefox */
-	image-rendering: crisp-edges; /* Standardowy */
+	image-rendering: pixelated;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
 }
 .form-input::after {
 	content: '';
@@ -52,9 +53,9 @@
 	background-image: url(../img/border-decor.png);
 	background-repeat: no-repeat;
 	background-size: contain;
-	image-rendering: pixelated; /* Dla nowoczesnych przeglądarek */
-	image-rendering: -moz-crisp-edges; /* Firefox */
-	image-rendering: crisp-edges; /* Standardowy */
+	image-rendering: pixelated;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
 }
 .bottom-border-decor::after {
 	content: '';
@@ -66,7 +67,7 @@
 	background-image: url(../img/border-decor.png);
 	background-repeat: no-repeat;
 	background-size: contain;
-	image-rendering: pixelated; /* Dla nowoczesnych przeglądarek */
-	image-rendering: -moz-crisp-edges; /* Firefox */
-	image-rendering: crisp-edges; /* Standardowy */
+	image-rendering: pixelated;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
 }
