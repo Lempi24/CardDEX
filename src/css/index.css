@@ -9,6 +9,8 @@
 	--color-binder: #1b1b1b;
 	--color-main-transparent: #1a1a2e71;
 	--color-filling-transparent: #3d4a5f67;
+	--color-accept: #4caf50;
+	--color-negative: #f44336;
 }
 @layer base {
 	html {
