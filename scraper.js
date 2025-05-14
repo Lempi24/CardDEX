@@ -58,7 +58,6 @@ async function scrapeCard(cardName) {
 
 		const currentUrl = page.url();
 		if (!currentUrl.includes('/en/')) {
-			console.log('⚠️ Zła wersja językowa, próbuję przekierować na en...');
 			const correctedUrl =
 				currentUrl.replace(/\/([a-z]{2})\//, '/en/') + '&idLanguage=1';
 			await page.goto(correctedUrl, { waitUntil: 'domcontentloaded' });
