@@ -1,8 +1,8 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fetch from 'node-fetch';
-require('dotenv').config();
-
+import dotenv from 'dotnev';
+dotenv.config();
 puppeteer.use(StealthPlugin());
 
 async function scrapeCard(cardName) {
