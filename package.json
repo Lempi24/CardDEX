@@ -41,5 +41,8 @@
 	},
 	"overrides": {
 		"rollup": "3.29.4"
+	},
+	"puppeteer": {
+		"product": "chrome"
 	}
 }
