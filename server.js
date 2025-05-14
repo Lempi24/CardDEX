@@ -4,14 +4,28 @@ import scrapeCard from './scraper.js';
 
 const app = express();
 
+// Middleware
 app.use(
 	cors({
 		origin: '*',
 		methods: ['GET', 'POST'],
+		credentials: true,
 	})
 );
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Route dla root path - sprawdzenie czy serwer działa
+app.get('/', (req, res) => {
+	res.json({ status: 'ok', message: 'API działa poprawnie' });
+});
+
+// Route GET dla /api/price - dla testów i Railway health checks
+app.get('/api/price', (req, res) => {
+	res.json({ message: 'Użyj metody POST do pobierania cen kart' });
+});
+
+// Główny endpoint do pobierania cen kart
 app.post('/api/price', async (req, res) => {
 	const { name, number } = req.body;
 
@@ -42,6 +56,11 @@ app.post('/api/price', async (req, res) => {
 		console.error('❌ Błąd serwera:', err);
 		res.status(500).json({ error: 'Scraping failed', message: err.message });
 	}
+});
+
+// Obsługa nieistniejących endpointów
+app.use((req, res) => {
+	res.status(404).json({ error: 'Not found' });
 });
 
 const PORT = process.env.PORT || 3001;
