@@ -30,14 +30,11 @@ const PokemonScanner = ({ onClose }) => {
 	const fetchCardPrice = async () => {
 		setIsFetchingPrice(true);
 		try {
-			const res = await fetch(
-				'https://carddex-production-6b29.up.railway.app/api/price',
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: pokemonName, number: cardNumber }),
-				}
-			);
+			const res = await fetch('http://localhost:3001/api/price', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: pokemonName, number: cardNumber }),
+			});
 			const data = await res.json();
 			if (data.price) {
 				setCardPrice(data.price);
