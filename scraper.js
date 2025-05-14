@@ -1,12 +1,18 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fetch from 'node-fetch';
+require('dotenv').config();
+
 puppeteer.use(StealthPlugin());
 
 async function scrapeCard(cardName) {
 	console.log(`🔍 Szukam: ${cardName}`);
 
 	const browser = await puppeteer.launch({
+		executablePath:
+			process.env.NODE_ENV === 'production'
+				? process.env.PUPPETEER_EXECUTABLE_PATH
+				: puppeteer.executablePath(),
 		headless: true,
 		args: [
 			'--no-sandbox',
@@ -14,6 +20,7 @@ async function scrapeCard(cardName) {
 			'--disable-dev-shm-usage',
 			'--single-process',
 			'--disable-gpu',
+			'--no-zygote',
 		],
 	});
 
