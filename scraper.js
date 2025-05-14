@@ -4,14 +4,17 @@ import fetch from 'node-fetch';
 puppeteer.use(StealthPlugin());
 
 async function scrapeCard(cardName) {
-	console.log(`🔍 Szukam: ${cardName}`);
+	console.log(`🔍 Start scrapowania dla: ${cardName}`);
 
-	const browser = await puppeteer.launch({
-		headless: 'new',
-		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-	});
-
+	let browser;
 	try {
+		console.log('🚀 Uruchamiam Puppeteer...');
+		browser = await puppeteer.launch({
+			headless: 'new',
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		});
+		console.log('✅ Puppeteer uruchomiony');
+
 		const page = await browser.newPage();
 
 		await page.setUserAgent(
@@ -24,11 +27,7 @@ async function scrapeCard(cardName) {
 		await page.setRequestInterception(true);
 		page.on('request', (req) => {
 			const resourceType = req.resourceType();
-			if (
-				resourceType === 'image' ||
-				resourceType === 'font' ||
-				resourceType === 'media'
-			) {
+			if (['image', 'font', 'media'].includes(resourceType)) {
 				req.abort();
 			} else {
 				req.continue();
@@ -38,6 +37,8 @@ async function scrapeCard(cardName) {
 		const searchUrl = `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${encodeURIComponent(
 			cardName
 		)}&idLanguage=1`;
+
+		console.log(`🌐 Przechodzę do: ${searchUrl}`);
 		await page.goto(searchUrl, {
 			waitUntil: 'domcontentloaded',
 			timeout: 15000,
@@ -49,41 +50,33 @@ async function scrapeCard(cardName) {
 			);
 			if (cookieButton) {
 				await cookieButton.click();
+				console.log('🍪 Kliknięto cookies');
 			}
-		} catch (e) {}
+		} catch (e) {
+			console.log('⚠️ Nie znaleziono przycisku cookies');
+		}
 
 		const currentUrl = page.url();
 		if (!currentUrl.includes('/en/')) {
-			console.log('⚠️ Przekierowano na wersję nie-angielską. Próba korekty...');
+			console.log('⚠️ Zła wersja językowa, próbuję przekierować na en...');
 			const correctedUrl =
 				currentUrl.replace(/\/([a-z]{2})\//, '/en/') + '&idLanguage=1';
 			await page.goto(correctedUrl, { waitUntil: 'domcontentloaded' });
 		}
-		await page
-			.waitForSelector('a[href*="/Pokemon/Products/Singles/"]', {
-				timeout: 5000,
-			})
-			.catch(() => {
-				throw new Error('Nie znaleziono wyników wyszukiwania.');
-			});
+
+		await page.waitForSelector('a[href*="/Pokemon/Products/Singles/"]', {
+			timeout: 5000,
+		});
 
 		const firstLinkHref = await page.$eval(
 			'a[href*="/Pokemon/Products/Singles/"]',
 			(el) => el.href
 		);
 
-		console.log(`➡️ Wchodzę na: ${firstLinkHref}`);
+		console.log(`➡️ Wchodzę w produkt: ${firstLinkHref}`);
 		await page.goto(firstLinkHref, { waitUntil: 'domcontentloaded' });
 
-		await page.waitForSelector('dt', { timeout: 5000 }).catch(() => {
-			throw new Error('Nie znaleziono informacji o cenie.');
-		});
-
-		async function getExchangeRate(base = 'EUR', target = 'PLN') {
-			const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-			const data = await response.json();
-			return data.rates[target];
-		}
+		await page.waitForSelector('dt', { timeout: 5000 });
 
 		const trendPriceRaw = await page.evaluate(() => {
 			const allElements = Array.from(document.querySelectorAll('dt, dd'));
@@ -101,7 +94,9 @@ async function scrapeCard(cardName) {
 			return null;
 		});
 
-		if (!trendPriceRaw) throw new Error('Nie znaleziono trend price.');
+		if (!trendPriceRaw) throw new Error('Nie znaleziono "Price Trend"');
+
+		console.log(`💶 Trend Price znaleziony: ${trendPriceRaw}`);
 
 		let currencySymbol = trendPriceRaw.match(/[^\d.,\s]+/g)?.[0] || '€';
 		let numericPrice = parseFloat(
@@ -116,17 +111,32 @@ async function scrapeCard(cardName) {
 
 		const currencyCode = currencyMap[currencySymbol] || 'EUR';
 		const exchangeRate = await getExchangeRate(currencyCode, 'PLN');
-		const priceInPLN = +(numericPrice * exchangeRate).toFixed(2);
 
-		console.log(
-			`💸 Trend price (${currencyCode}): ${numericPrice} → ${priceInPLN} PLN`
-		);
+		console.log(`💱 Kurs ${currencyCode} → PLN: ${exchangeRate}`);
+
+		const priceInPLN = +(numericPrice * exchangeRate).toFixed(2);
+		console.log(`✅ Cena końcowa: ${priceInPLN} PLN`);
+
 		return priceInPLN;
 	} catch (error) {
-		console.error(`❌ Błąd: ${error.message}`);
+		console.error(`❌ Błąd w scraperze: ${error.message}`);
 		return null;
 	} finally {
-		await browser.close();
+		if (browser) {
+			await browser.close();
+			console.log('🧹 Puppeteer zamknięty');
+		}
+	}
+}
+
+async function getExchangeRate(base = 'EUR', target = 'PLN') {
+	try {
+		const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
+		const data = await response.json();
+		return data.rates[target];
+	} catch (e) {
+		console.error('❌ Błąd pobierania kursu walut:', e.message);
+		return 4.5; // fallback
 	}
 }
 
