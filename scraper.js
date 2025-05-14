@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fetch from 'node-fetch';
-import dotenv from 'dotnev';
+import dotenv from 'dotenv';
 dotenv.config();
 puppeteer.use(StealthPlugin());
 
