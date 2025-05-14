@@ -30,7 +30,7 @@ const PokemonScanner = ({ onClose }) => {
 	const fetchCardPrice = async () => {
 		setIsFetchingPrice(true);
 		try {
-			const res = await fetch('https://carddex.onrender.com/api/price', {
+			const res = await fetch('http://localhost:3001/api/price', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: pokemonName, number: cardNumber }),
