@@ -50,6 +50,11 @@ app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
+// Obsługa dodatkowych ścieżek
+app.get(['/index.html', '/main-page'], (req, res) => {
+	res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 // Obsługa specyficznych ścieżek, jeśli używasz routingu po stronie klienta
 app.get('/index.html', (req, res) => {
 	res.sendFile(path.join(__dirname, 'dist', 'index.html'));
