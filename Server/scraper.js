@@ -1,15 +1,24 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fetch from 'node-fetch';
+import chromium from 'chrome-aws-lambda';
 puppeteer.use(StealthPlugin());
 
 async function scrapeCard(cardName) {
 	console.log(`🔍 Szukam: ${cardName}`);
 
 	const browser = await puppeteer.launch({
-		headless: 'new',
-		executablePath: '/usr/bin/chromium',
-		args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		headless: true,
+		args: [
+			...chromium.args,
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage',
+			'--disable-gpu',
+		],
+		executablePath: (await chromium.executablePath) || '/usr/bin/chromium',
+		defaultViewport: chromium.defaultViewport,
+		ignoreHTTPSErrors: true,
 	});
 
 	try {
