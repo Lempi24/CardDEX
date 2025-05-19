@@ -1,7 +1,7 @@
-# Użyj lekkiego image Node'a
-FROM node:18-slim
+# Używamy lekkiego obrazu z Node
+FROM node:20-slim
 
-# Zainstaluj Chromium + zależności puppeteera
+# Puppeteer potrzebuje tych bibliotek
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     libatk1.0-0 \
     libcups2 \
     libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
     libnspr4 \
     libnss3 \
     libx11-xcb1 \
@@ -20,31 +22,24 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     xdg-utils \
     wget \
-    ca-certificates \
-    --no-install-recommends && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
 
-# Sprawdź, gdzie jest chromium
-RUN which chromium || which chromium-browser || echo "chromium not found"
-
-# Ustaw zmienne środowiskowe Puppeteer
+# Ustaw zmienną środowiskową dla Puppeteera
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV NODE_OPTIONS="--max-old-space-size=512"
 
-# Ustaw katalog roboczy
+# Tworzymy katalog aplikacji
 WORKDIR /app
 
-# Kopiuj package.json i zainstaluj zależności
+# Kopiujemy package.json i instalujemy zależności
 COPY package*.json ./
 RUN npm install
 
-# Kopiuj resztę plików
+# Kopiujemy resztę plików
 COPY . .
 
-# Otwórz port (używaj zmiennej środowiskowej PORT)
-ENV PORT=10000
-EXPOSE ${PORT}
+# Wystawiamy port backendu
+EXPOSE 3001
 
-# Start backendu
+# Uruchamiamy serwer
 CMD ["node", "server.js"]
