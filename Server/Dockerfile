@@ -24,10 +24,13 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Znajdź ścieżkę do chrome i ustaw zmienną środowiskową
+# Sprawdź, gdzie jest chromium
 RUN which chromium || which chromium-browser || echo "chromium not found"
+
+# Ustaw zmienne środowiskowe Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV NODE_OPTIONS="--max-old-space-size=512"
 
 # Ustaw katalog roboczy
 WORKDIR /app
