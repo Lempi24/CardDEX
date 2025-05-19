@@ -12,6 +12,11 @@ app.use(
 );
 app.use(express.json());
 
+// Dodajemy podstawowy endpoint dla testów
+app.get('/', (req, res) => {
+	res.send('API działa poprawnie');
+});
+
 app.post('/api/price', async (req, res) => {
 	const { name, number } = req.body;
 
@@ -37,8 +42,8 @@ app.post('/api/price', async (req, res) => {
 	}
 });
 
-const PORT = 3001;
-app.listen(PORT, '0.0.0.0', () => {
-	console.log(`🟢 Backend działa na http://localhost:${PORT}`);
-	console.log(`🌐 Dostępny również na zewnętrznych interfejsach`);
+// Używaj portu z zmiennej środowiskowej (ważne dla Render)
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+	console.log(`🟢 Backend działa na porcie ${PORT}`);
 });
