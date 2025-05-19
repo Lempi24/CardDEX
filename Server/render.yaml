@@ -4,7 +4,10 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: npm install && npx puppeteer browsers install chrome
+    buildCommand: |
+      apt-get update
+      apt-get install -y chromium
+      npm install
     startCommand: node server.js
     envVars:
       - key: NODE_VERSION

@@ -8,6 +8,7 @@ async function scrapeCard(cardName) {
 
 	const browser = await puppeteer.launch({
 		headless: 'new',
+		executablePath: '/usr/bin/chromium',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
 
