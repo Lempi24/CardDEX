@@ -6,7 +6,6 @@ puppeteer.use(StealthPlugin());
 async function scrapeCard(cardName) {
   console.log(`🔍 Szukam: ${cardName}`);
 
-  // Konfiguracja dla Render (lub dowolnego środowiska serverless)
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -18,8 +17,8 @@ async function scrapeCard(cardName) {
       '--no-zygote',
       '--disable-gpu',
       '--single-process'
-    ],
-    // Puppeteer znajdzie domyślną przeglądarkę Chromium
+    ]
+    // Nie podajemy executablePath - puppeteer znajdzie automatycznie
   });
 
   try {

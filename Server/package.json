@@ -1,20 +1,21 @@
 {
-	"name": "carddex-backend",
-	"private": true,
-	"version": "1.0.0",
-	"type": "module",
-	"scripts": {
-		"start": "node server.js"
-	},
-	"dependencies": {
-		"cors": "^2.8.5",
-		"express": "^5.1.0",
-		"node-fetch": "^3.3.2",
-		"puppeteer": "^24.8.2",
-		"puppeteer-extra": "^3.3.6",
-		"puppeteer-extra-plugin-stealth": "^2.11.2"
-	},
-	"engines": {
-		"node": ">=18.x"
-	}
+  "name": "carddex-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "postinstall": "npx puppeteer browsers install chrome",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^24.8.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
 }
