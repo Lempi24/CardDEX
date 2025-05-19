@@ -19,15 +19,41 @@ async function scrapeCard(cardName) {
 		],
 	};
 
-	// Różne ścieżki dla lokalnego i produkcyjnego środowiska
-	if (process.env.NODE_ENV === 'production') {
-		console.log('Uruchamiam w środowisku produkcyjnym Render');
-		// Na Render używamy zainstalowanego Chrome
-		options.executablePath =
-			process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
+	// Szukamy Chrome/Chromium w różnych lokalizacjach
+	const possiblePaths = [
+		'/usr/bin/chromium',
+		'/usr/bin/chromium-browser',
+		'/usr/bin/google-chrome',
+		'/usr/bin/google-chrome-stable',
+	];
+
+	// Najpierw sprawdzamy zmienną środowiskową
+	const execPath = process.env.PUPPETEER_EXECUTABLE_PATH;
+	if (execPath) {
+		console.log(`Używam ścieżki z PUPPETEER_EXECUTABLE_PATH: ${execPath}`);
+		options.executablePath = execPath;
 	} else {
-		// Lokalnie lub gdy ścieżka nie jest ustawiona, używamy domyślnej
-		console.log('Uruchamiam lokalnie');
+		// Szukamy Chrome/Chromium w systemie
+		console.log('Szukam chromium w systemie...');
+		// Sprawdzamy dostępność plików
+		const fs = require('fs');
+		for (const path of possiblePaths) {
+			try {
+				if (fs.existsSync(path)) {
+					console.log(`Znaleziono przeglądarkę w: ${path}`);
+					options.executablePath = path;
+					break;
+				}
+			} catch (err) {
+				console.log(`Nie znaleziono w: ${path}`);
+			}
+		}
+
+		if (!options.executablePath) {
+			console.log(
+				'Nie znaleziono Chrome/Chromium, używam domyślnej instalacji'
+			);
+		}
 	}
 
 	let browser;

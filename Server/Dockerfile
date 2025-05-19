@@ -24,6 +24,11 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Znajdź ścieżkę do chrome i ustaw zmienną środowiskową
+RUN which chromium || which chromium-browser || echo "chromium not found"
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
 # Ustaw katalog roboczy
 WORKDIR /app
 
@@ -34,8 +39,9 @@ RUN npm install
 # Kopiuj resztę plików
 COPY . .
 
-# Otwórz port (ważne dla Render)
-EXPOSE 3001
+# Otwórz port (używaj zmiennej środowiskowej PORT)
+ENV PORT=10000
+EXPOSE ${PORT}
 
 # Start backendu
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
