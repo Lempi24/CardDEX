@@ -17,9 +17,7 @@ const PokemonScanner = ({ onClose }) => {
 
 	useEffect(() => {
 		const getNames = async () => {
-			const res = await fetch(
-				'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0'
-			);
+			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/price`);
 			const data = await res.json();
 			const names = data.results.map((p) => p.name);
 			setApiPokemonNames(names);
