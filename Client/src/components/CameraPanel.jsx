@@ -12,7 +12,6 @@ const PokemonScanner = ({ onClose }) => {
 	const [isPokemonFound, setIsPokemonFound] = useState(false);
 	const [cardNumber, setCardNumber] = useState('');
 	const [cardPrice, setCardPrice] = useState(null);
-	const [cardURL, setCardURL] = useState('');
 	const [isFetchingPrice, setIsFetchingPrice] = useState(false);
 	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
 
@@ -39,18 +38,6 @@ const PokemonScanner = ({ onClose }) => {
 			const data = await res.json();
 			if (data.price) {
 				setCardPrice(data.price + ' PLN');
-
-				if (data.imageUrl) {
-					console.log('Oryginalny URL obrazka:', data.imageUrl);
-
-					const proxyUrl = `${
-						import.meta.env.VITE_BACKEND_URL
-					}/api/card-image?url=${encodeURIComponent(data.imageUrl)}`;
-					console.log('Proxy URL obrazka:', proxyUrl);
-					setCardURL(proxyUrl);
-				} else {
-					console.log('Nie otrzymano URL obrazka');
-				}
 			} else {
 				setCardPrice('Nie znaleziono');
 			}
@@ -163,7 +150,6 @@ const PokemonScanner = ({ onClose }) => {
 		setScanStatus('');
 		setCardNumber('');
 		setCardPrice(null);
-		setCardURL('');
 	};
 	return (
 		<div className='fixed inset-0 z-50 bg-black'>
@@ -196,15 +182,13 @@ const PokemonScanner = ({ onClose }) => {
 						className='w-3/4 text-center bg-transparent border-b border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-accent1'
 						placeholder='Numer'
 					/>
-					<div className='h-[300px] w-full'>
-						{cardURL && (
-							<img
-								src={cardURL}
-								alt={pokemonName}
-								className='w-full h-full rounded-lg shadow-md border border-white/20'
-							/>
-						)}
-					</div>
+
+					<img
+						src={pikachu}
+						alt={pokemonName}
+						className='w-3/4 rounded-lg shadow-md border border-white/20'
+					/>
+
 					<div className='text-center text-white space-y-1'>
 						<p className='text-sm'>Current value in PLN:</p>
 						<p className='text-2xl font-bold text-accent1 flex items-center justify-center'>
