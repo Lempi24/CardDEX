@@ -17,7 +17,9 @@ const PokemonScanner = ({ onClose }) => {
 
 	useEffect(() => {
 		const getNames = async () => {
-			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/price`);
+			const res = await fetch(
+				'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0'
+			);
 			const data = await res.json();
 			const names = data.results.map((p) => p.name);
 			setApiPokemonNames(names);
@@ -28,14 +30,11 @@ const PokemonScanner = ({ onClose }) => {
 	const fetchCardPrice = async () => {
 		setIsFetchingPrice(true);
 		try {
-			const res = await fetch(
-				'pure-embrace-production.up.railway.app/api/price',
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: pokemonName, number: cardNumber }),
-				}
-			);
+			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/price`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: pokemonName, number: cardNumber }),
+			});
 			const data = await res.json();
 			if (data.price) {
 				setCardPrice(data.price + ' PLN');
