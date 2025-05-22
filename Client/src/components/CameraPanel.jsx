@@ -184,52 +184,75 @@ const PokemonScanner = ({ onClose }) => {
 				className='scan-border fixed w-7/10 h-1/2 border-4 border-accent1 opacity-30 rounded-xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
 			/>
 			{isPokemonFound && (
-				<div className='fixed w-72 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg p-6 z-50 flex flex-col items-center space-y-4'>
-					<h2 className='text-lg font-semibold text-white tracking-wide uppercase'>
-						{pokemonName}
-					</h2>
+				<div className='fixed w-80 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-text'>
+					{/* Główny kontener slab-a */}
+					<div className='bg-main rounded-lg shadow-2xl border-2 border-filling overflow-hidden'>
+						{/* Górny panel - sekcja karty */}
+						<div className='p-4 pb-2 border-b-4 border-filling'>
+							<div className='flex justify-between items-center mb-2'>
+								<h2 className='text-xl font-bold uppercase tracking-tight'>
+									{pokemonName}
+								</h2>
+								<div className='relative'>
+									<input
+										type='text'
+										value={cardNumber}
+										onChange={(e) => setCardNumber(e.target.value)}
+										className='w-20 bg-gray-200/80 border border-accent1 rounded text-center text-filling font-mono text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-accent1 focus:border-accent1'
+										placeholder='000'
+										maxLength='4'
+									/>
+								</div>
+							</div>
 
-					<input
-						type='text'
-						value={cardNumber}
-						onChange={(e) => setCardNumber(e.target.value)}
-						className='w-3/4 text-center bg-transparent border-b border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-accent1'
-						placeholder='Numer'
-					/>
-					<div className='h-[300px] w-full'>
-						{cardURL && (
-							<img
-								src={cardURL}
-								alt={pokemonName}
-								className='w-full h-full rounded-lg shadow-md border border-white/20'
-							/>
-						)}
-					</div>
-					<div className='text-center text-white space-y-1'>
-						<p className='text-sm'>Current value in PLN:</p>
-						<p className='text-2xl font-bold text-accent1 flex items-center justify-center'>
-							{isFetchingPrice ? (
-								<span className='animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full'></span>
-							) : (
-								cardPrice || '...'
-							)}
-						</p>
+							<div className='h-80'>
+								{cardURL && (
+									<img
+										src={cardURL}
+										alt={pokemonName}
+										className='w-full h-full object-contain'
+									/>
+								)}
+							</div>
+						</div>
+
+						{/* Dolny panel - sekcja wartości i akcji */}
+						<div className='p-4 pt-3 '>
+							<div className='flex items-center justify-between mb-3'>
+								<span className='text-xs font-semibold  uppercase'>
+									Price trend
+								</span>
+								<div className='text-right'>
+									<p className='text-sm '>Current value in PLN</p>
+									<p className='text-2xl font-bold '>
+										{isFetchingPrice ? (
+											<span className='inline-block animate-spin h-5 w-5 border-2 border-accent1 border-t-transparent rounded-full'></span>
+										) : (
+											cardPrice || '---'
+										)}
+									</p>
+								</div>
+							</div>
+
+							<div className='flex space-x-3 justify-center border-t border-filling pt-3'>
+								<button
+									className='bg-negative  py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
+									onClick={cancelScanResults}
+								>
+									Rescan
+								</button>
+								<button
+									onClick={fetchCardPrice}
+									className='bg-accept  py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
+								>
+									Confirm
+								</button>
+							</div>
+						</div>
 					</div>
 
-					<div className='flex space-x-6 pt-4'>
-						<button
-							className='bg-negative text-white py-2 px-5 rounded-lg shadow hover:brightness-110'
-							onClick={cancelScanResults}
-						>
-							Again
-						</button>
-						<button
-							onClick={fetchCardPrice}
-							className='bg-accept text-white py-2 px-5 rounded-lg shadow hover:brightness-110'
-						>
-							Accept
-						</button>
-					</div>
+					{/* Efekt "slab" - przezroczyste krawędzie */}
+					<div className='absolute inset-0 border-4 border-white/30 rounded-lg pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.1)]'></div>
 				</div>
 			)}
 
