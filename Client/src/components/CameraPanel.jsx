@@ -9,7 +9,7 @@ const PokemonScanner = ({ onClose }) => {
 	const [pokemonName, setPokemonName] = useState('pikachu');
 	const [scanStatus, setScanStatus] = useState('');
 	const [apiPokemonNames, setApiPokemonNames] = useState(null);
-	const [isPokemonFound, setIsPokemonFound] = useState(true);
+	const [isPokemonFound, setIsPokemonFound] = useState(false);
 	const [cardNumber, setCardNumber] = useState('');
 	const [cardPrice, setCardPrice] = useState(null);
 	const [cardURL, setCardURL] = useState('');
