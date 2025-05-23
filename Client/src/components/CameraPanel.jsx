@@ -1,7 +1,7 @@
 import Webcam from 'react-webcam';
 import React, { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
-import pikachu from '../img/cards/pikachu.png';
+import filter from '../img/filter1.svg';
 const PokemonScanner = ({ onClose }) => {
 	const webcamRef = useRef(null);
 	const scannerBoxRef = useRef(null);
@@ -9,11 +9,14 @@ const PokemonScanner = ({ onClose }) => {
 	const [pokemonName, setPokemonName] = useState('pikachu');
 	const [scanStatus, setScanStatus] = useState('');
 	const [apiPokemonNames, setApiPokemonNames] = useState(null);
-	const [isPokemonFound, setIsPokemonFound] = useState(false);
+	const [isPokemonFound, setIsPokemonFound] = useState(true);
 	const [cardNumber, setCardNumber] = useState('');
 	const [cardPrice, setCardPrice] = useState(null);
 	const [cardURL, setCardURL] = useState('');
 	const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+	const [isFlipped, setIsFlipped] = useState(true);
+	const [filterOption, setFilterOption] = useState('price trend');
+	const [filterLanguage, setFilterLanguage] = useState('1');
 	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
 
 	useEffect(() => {
@@ -34,11 +37,16 @@ const PokemonScanner = ({ onClose }) => {
 			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/price`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: pokemonName, number: cardNumber }),
+				body: JSON.stringify({
+					name: pokemonName,
+					number: cardNumber,
+					filter: filterOption,
+					language: filterLanguage,
+				}),
 			});
 			const data = await res.json();
 			if (data.price) {
-				setCardPrice(data.price + ' PLN');
+				setCardPrice(data.price);
 
 				if (data.imageUrl) {
 					console.log('Oryginalny URL obrazka:', data.imageUrl);
@@ -165,6 +173,12 @@ const PokemonScanner = ({ onClose }) => {
 		setCardPrice(null);
 		setCardURL('');
 	};
+	const handleFilterChange = (e) => {
+		setFilterOption(e.target.value);
+	};
+	const handleLanguageChange = (e) => {
+		setFilterLanguage(e.target.value);
+	};
 	return (
 		<div className='fixed inset-0 z-50 bg-black'>
 			<Webcam
@@ -186,6 +200,7 @@ const PokemonScanner = ({ onClose }) => {
 			{isPokemonFound && (
 				<div className='fixed w-80 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-text'>
 					{/* Główny kontener slab-a */}
+
 					<div className='bg-main rounded-lg shadow-2xl border-2 border-filling overflow-hidden'>
 						{/* Górny panel - sekcja karty */}
 						<div className='p-4 pb-2 border-b-4 border-filling'>
@@ -215,9 +230,89 @@ const PokemonScanner = ({ onClose }) => {
 								)}
 							</div>
 						</div>
+						<button
+							onClick={() => setIsFlipped((prevState) => !prevState)}
+							className=' absolute flex items-center justify-center -right-10 w-[40px] bg-accent1 border-2 border-filling text-main'
+						>
+							<img src={filter} alt='' />
+						</button>
+						{/* Dolny panel - sekcja wartości */}
+						<div className={`p-4 pt-3 relative ${isFlipped ? 'hidden' : ''}`}>
+							<div className='absolute space-y-1'>
+								<div className='flex items-center gap-4'>
+									<input
+										type='radio'
+										id='from'
+										name='filter'
+										value='from'
+										checked={filterOption === 'from'}
+										onChange={handleFilterChange}
+									/>
+									<label htmlFor='from'>Price "From"</label>
+								</div>
 
-						{/* Dolny panel - sekcja wartości i akcji */}
-						<div className='p-4 pt-3 '>
+								<div className='flex items-center gap-4'>
+									<input
+										type='radio'
+										id='trend'
+										name='filter'
+										value='price trend'
+										checked={filterOption === 'price trend'}
+										onChange={handleFilterChange}
+									/>
+									<label htmlFor='trend'>Price Trend</label>
+								</div>
+
+								<div>
+									<select
+										name='language'
+										id='language'
+										value={filterLanguage}
+										onChange={handleLanguageChange}
+										className='text-main bg-accent1 p-2'
+									>
+										<option value='1'>English</option>
+										<option value='2'>French</option>
+										<option value='3'>German</option>
+										<option value='4'>Spanish</option>
+										<option value='5'>Italian</option>
+										<option value='8'>Portuguese</option>
+									</select>
+								</div>
+							</div>
+							<div className='flex items-center justify-between mb-3 invisible'>
+								<span className='text-xs font-semibold  uppercase'>
+									Price trend
+								</span>
+								<div className='text-right'>
+									<p className='text-sm '>Current value in PLN</p>
+									<p className='text-2xl font-bold '>
+										{isFetchingPrice ? (
+											<span className='inline-block animate-spin h-5 w-5 border-2 border-accent1 border-t-transparent rounded-full'></span>
+										) : (
+											cardPrice || '---'
+										)}
+									</p>
+								</div>
+							</div>
+
+							<div className='flex space-x-3 justify-center border-t border-filling pt-3'>
+								<button
+									className='bg-negative  py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
+									onClick={cancelScanResults}
+								>
+									Rescan
+								</button>
+								<button
+									onClick={fetchCardPrice}
+									className='bg-accept py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
+								>
+									Confirm
+								</button>
+							</div>
+						</div>
+						{/* Dolny panel - filtry */}
+						<div className={`p-4 pt-3 ${!isFlipped ? 'hidden' : ''}`}>
 							<div className='flex items-center justify-between mb-3'>
 								<span className='text-xs font-semibold  uppercase'>
 									Price trend
@@ -243,16 +338,13 @@ const PokemonScanner = ({ onClose }) => {
 								</button>
 								<button
 									onClick={fetchCardPrice}
-									className='bg-accept  py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
+									className='bg-accept py-1.5 px-6 rounded-md shadow-sm text-sm font-medium transition-colors'
 								>
 									Confirm
 								</button>
 							</div>
 						</div>
 					</div>
-
-					{/* Efekt "slab" - przezroczyste krawędzie */}
-					<div className='absolute inset-0 border-4 border-white/30 rounded-lg pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.1)]'></div>
 				</div>
 			)}
 

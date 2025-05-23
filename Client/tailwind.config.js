@@ -9,6 +9,18 @@ export default {
 			backgroundImage: {
 				pokeborder: 'url(`/img/border-box.jpg`)',
 			},
+			transformStyle: {
+				'preserve-3d': 'preserve-3d',
+			},
+			backfaceVisibility: {
+				hidden: 'hidden',
+			},
+			rotate: {
+				'y-180': 'rotateY(180deg)',
+			},
+			perspective: {
+				1000: '1000px',
+			},
 		},
 	},
 	plugins: [],

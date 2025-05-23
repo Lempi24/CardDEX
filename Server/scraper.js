@@ -1,7 +1,6 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fetch from 'node-fetch';
-
 puppeteer.use(StealthPlugin());
 
 const exchangeRateCache = new Map();
@@ -27,7 +26,7 @@ async function getExchangeRate(base = 'EUR', target = 'PLN') {
 	}
 }
 
-async function scrapeCard(cardName) {
+async function scrapeCard(cardName, filter, language) {
 	console.log(`🔍 Szukam: ${cardName}`);
 	const startTime = Date.now();
 
@@ -62,7 +61,7 @@ async function scrapeCard(cardName) {
 
 		const searchUrl = `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${encodeURIComponent(
 			cardName
-		)}&idLanguage=1`;
+		)}`;
 		await page.goto(searchUrl, {
 			waitUntil: 'domcontentloaded',
 			timeout: 10000,
@@ -98,9 +97,17 @@ async function scrapeCard(cardName) {
 			timeout: 10000,
 		});
 
+		const languageUrl = `${firstLinkHref}?language=${language}`;
+		console.log(`🌐 Przełączam na wersję językową: ${languageUrl}`);
+
+		await page.goto(languageUrl, {
+			waitUntil: 'domcontentloaded',
+			timeout: 10000,
+		});
+
 		const [imageUrl, trendPriceRaw] = await Promise.all([
 			findImageUrl(page),
-			extractPriceRaw(page),
+			extractPriceRaw(page, filter),
 		]);
 
 		if (imageUrl) {
@@ -163,15 +170,16 @@ async function findImageUrl(page) {
 	}
 }
 
-async function extractPriceRaw(page) {
+async function extractPriceRaw(page, filter) {
+	console.log('filter: ' + filter);
 	try {
-		return await page.evaluate(() => {
+		return await page.evaluate((filter) => {
 			const allElements = Array.from(document.querySelectorAll('dt, dd'));
 			for (let i = 0; i < allElements.length; i++) {
 				const el = allElements[i];
 				if (
 					el.tagName === 'DT' &&
-					(el.textContent.toLowerCase().includes('price trend') ||
+					(el.textContent.toLowerCase().includes(filter) ||
 						el.textContent.toLowerCase().includes('tendance des prix'))
 				) {
 					const valueEl = allElements[i + 1];
@@ -179,7 +187,7 @@ async function extractPriceRaw(page) {
 				}
 			}
 			return '';
-		});
+		}, filter);
 	} catch (error) {
 		console.error('Błąd podczas ekstrakcji ceny:', error);
 		return '0';

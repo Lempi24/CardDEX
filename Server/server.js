@@ -31,7 +31,7 @@ app.use(
 );
 
 app.post('/api/price', async (req, res) => {
-	const { name, number } = req.body;
+	const { name, number, filter, language } = req.body;
 
 	if (!name || !number) {
 		return res.status(400).json({ error: 'Missing name or number' });
@@ -41,7 +41,7 @@ app.post('/api/price', async (req, res) => {
 	console.log(`🔍 Zapytanie o kartę: ${fullName}`);
 
 	try {
-		const result = await scrapeCard(fullName);
+		const result = await scrapeCard(fullName, filter, language);
 
 		if (!result) {
 			return res.status(404).json({ error: 'Card data not found' });
