@@ -26,6 +26,14 @@ async function getExchangeRate(base = 'EUR', target = 'PLN') {
 	}
 }
 
+function forceEnglishUrl(url) {
+	// Zamień /fr/ na /en/ w URL
+	return url.replace(
+		'https://www.cardmarket.com/fr/',
+		'https://www.cardmarket.com/en/'
+	);
+}
+
 async function scrapeCard(cardName, filter, language) {
 	console.log(`🔍 Szukam: ${cardName}`);
 	const startTime = Date.now();
@@ -40,7 +48,10 @@ async function scrapeCard(cardName, filter, language) {
 		await page.setUserAgent(
 			'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 		);
-		await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' });
+		await page.setExtraHTTPHeaders({
+			'Accept-Language': 'en-US,en;q=0.9',
+			'Accept-Encoding': 'gzip, deflate, br',
+		});
 
 		await page.setRequestInterception(true);
 		page.on('request', (req) => {
@@ -90,14 +101,17 @@ async function scrapeCard(cardName, filter, language) {
 		});
 
 		if (!firstLinkHref) throw new Error('Nie znaleziono wyników wyszukiwania.');
-		console.log(`➡️ Wchodzę na: ${firstLinkHref}`);
 
-		await page.goto(firstLinkHref, {
+		// Wymusz angielski URL
+		const englishHref = forceEnglishUrl(firstLinkHref);
+		console.log(`➡️ Wchodzę na: ${englishHref}`);
+
+		await page.goto(englishHref, {
 			waitUntil: 'domcontentloaded',
 			timeout: 10000,
 		});
 
-		const languageUrl = `${firstLinkHref}?language=${language}`;
+		const languageUrl = `${englishHref}?language=${language}`;
 		console.log(`🌐 Przełączam na wersję językową: ${languageUrl}`);
 
 		await page.goto(languageUrl, {

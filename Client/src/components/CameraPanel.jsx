@@ -232,9 +232,9 @@ const PokemonScanner = ({ onClose }) => {
 						</div>
 						<button
 							onClick={() => setIsFlipped((prevState) => !prevState)}
-							className=' absolute flex items-center justify-center -right-10 w-[40px] bg-accent1 border-2 border-filling text-main'
+							className=' absolute flex items-center justify-center -bottom-7 left-1/2 transform -translate-x-1/2 w-60 bg-accent1 border-2 border-filling text-main'
 						>
-							<img src={filter} alt='' />
+							Filters
 						</button>
 						{/* Dolny panel - sekcja wartości */}
 						<div className={`p-4 pt-3 relative ${isFlipped ? 'hidden' : ''}`}>
@@ -269,7 +269,7 @@ const PokemonScanner = ({ onClose }) => {
 										id='language'
 										value={filterLanguage}
 										onChange={handleLanguageChange}
-										className='text-main bg-accent1 p-2'
+										className='text-main bg-accent1 p-1'
 									>
 										<option value='1'>English</option>
 										<option value='2'>French</option>
