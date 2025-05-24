@@ -1,7 +1,6 @@
 import Webcam from 'react-webcam';
 import React, { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
-import filter from '../img/filter1.svg';
 const PokemonScanner = ({ onClose }) => {
 	const webcamRef = useRef(null);
 	const scannerBoxRef = useRef(null);
@@ -14,7 +13,7 @@ const PokemonScanner = ({ onClose }) => {
 	const [cardPrice, setCardPrice] = useState(null);
 	const [cardURL, setCardURL] = useState('');
 	const [isFetchingPrice, setIsFetchingPrice] = useState(false);
-	const [isFlipped, setIsFlipped] = useState(true);
+	const [isFlipped, setIsFlipped] = useState(false);
 	const [filterOption, setFilterOption] = useState('price trend');
 	const [filterLanguage, setFilterLanguage] = useState('1');
 	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
@@ -32,6 +31,7 @@ const PokemonScanner = ({ onClose }) => {
 	}, []);
 
 	const fetchCardPrice = async () => {
+		setIsFlipped(false);
 		setIsFetchingPrice(true);
 		try {
 			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/price`, {
@@ -237,7 +237,7 @@ const PokemonScanner = ({ onClose }) => {
 							Filters
 						</button>
 						{/* Dolny panel - sekcja wartości */}
-						<div className={`p-4 pt-3 relative ${isFlipped ? 'hidden' : ''}`}>
+						<div className={`p-4 pt-3 relative ${!isFlipped ? 'hidden' : ''}`}>
 							<div className='absolute space-y-1'>
 								<div className='flex items-center gap-4'>
 									<input
@@ -312,7 +312,7 @@ const PokemonScanner = ({ onClose }) => {
 							</div>
 						</div>
 						{/* Dolny panel - filtry */}
-						<div className={`p-4 pt-3 ${!isFlipped ? 'hidden' : ''}`}>
+						<div className={`p-4 pt-3 ${isFlipped ? 'hidden' : ''}`}>
 							<div className='flex items-center justify-between mb-3'>
 								<span className='text-xs font-semibold  uppercase'>
 									Price trend
