@@ -44,6 +44,7 @@ export const loginUser = async (req, res) => {
 			process.env.JWT_SECRET || 'dev_secret_key',
 			{ expiresIn: '2h' }
 		);
+		console.log('JWT_SECRET:', process.env.JWT_SECRET);
 		res.status(200).json({
 			message: 'Login successful',
 			token,
