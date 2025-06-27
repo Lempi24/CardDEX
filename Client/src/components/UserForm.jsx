@@ -21,14 +21,11 @@ const UserForm = ({
 	const submitCall = async (data) => {
 		if (isLoging) {
 			try {
-				console.log(data);
 				const response = await axios.post(
 					`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,
 					data
 				);
 				if (response.status == 200) {
-					console.log('Logowanie pomyślne');
-					console.log('TOKEN:', response.data.token);
 					localStorage.setItem('token', response.data.token);
 					navigate('/main-page');
 				}
@@ -42,7 +39,6 @@ const UserForm = ({
 					data
 				);
 				if (response.status == 201) {
-					console.log('Rejestracja z frontu udana');
 					navigate('/');
 				}
 			} catch (error) {
