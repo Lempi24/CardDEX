@@ -15,7 +15,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 	const [cardURL, setCardURL] = useState('');
 	const [isFetchingPrice, setIsFetchingPrice] = useState(false);
 	const [isFlipped, setIsFlipped] = useState(false);
-	const [filterOption, setFilterOption] = useState('price trend');
+	const [filterOption, setFilterOption] = useState('from');
 	const [filterLanguage, setFilterLanguage] = useState('1');
 	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
 
@@ -181,7 +181,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 	const handleLanguageChange = (e) => {
 		setFilterLanguage(e.target.value);
 	};
-	const addCard = async (pokemonName, cardNumber, cardURL) => {
+	const addCard = async (pokemonName, cardNumber, cardPrice, cardURL) => {
 		try {
 			const token = localStorage.getItem('token');
 
@@ -191,7 +191,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 			}
 			const response = await axios.post(
 				`${import.meta.env.VITE_BACKEND_URL}/api/cards/addcard`,
-				{ pokemonName, cardNumber, cardURL },
+				{ pokemonName, cardNumber, cardPrice, cardURL },
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -373,7 +373,9 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 										Rescan
 									</button>
 									<button
-										onClick={() => addCard(pokemonName, cardNumber, cardURL)}
+										onClick={() =>
+											addCard(pokemonName, cardNumber, cardPrice, cardURL)
+										}
 										className='border border-accent1 text-accent1 hover:bg-primary/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition'
 									>
 										Add Card

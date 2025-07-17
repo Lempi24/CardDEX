@@ -13,12 +13,14 @@ const MainPage = () => {
 	const [cards, setCards] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [priceLoading, setPriceLoading] = useState(false);
 	const navigate = useNavigate();
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		totalPages: 1,
 		limit: 9,
 	});
+
 	const fetchUserCards = async (page = 1) => {
 		try {
 			setLoading(true);
@@ -63,12 +65,81 @@ const MainPage = () => {
 		}
 	};
 
+	const scrapeCardPrice = async (cardName, cardNumber) => {
+		try {
+			setPriceLoading(true);
+			const fullCardName = cardNumber ? `${cardName} ${cardNumber}` : cardName;
+			const response = await axios.post(
+				`${import.meta.env.VITE_BACKEND_URL}/api/scrape-price`,
+				{
+					cardName: fullCardName,
+					filter: 'from',
+					language: '1',
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('token')}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			if (response.status === 200 && response.data.price) {
+				return response.data.price;
+			}
+			return null;
+		} catch (error) {
+			console.error('Error scraping price:', error);
+			return null;
+		} finally {
+			setPriceLoading(false);
+		}
+	};
+
+	const updateCardPriceInDatabase = async (cardId, newPrice) => {
+		try {
+			const response = await axios.put(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/update-price`,
+				{
+					cardId: cardId,
+					newPrice: newPrice,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('token')}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			if (response.status === 200) {
+				// Aktualizuj kartę w lokalnym stanie
+				setCards((prevCards) =>
+					prevCards.map((card) =>
+						card._id === cardId ? { ...card, price: newPrice } : card
+					)
+				);
+
+				// Aktualizuj wybraną kartę jeśli to ta sama
+				if (selectedCard && selectedCard._id === cardId) {
+					setSelectedCard((prev) => ({ ...prev, price: newPrice }));
+				}
+
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error('Error updating card price:', error);
+			return false;
+		}
+	};
+
 	useEffect(() => {
 		fetchUserCards();
 	}, []);
 
 	const handleCardClick = (cardId) => {
-		return () => {
+		return async () => {
 			setIsCardInfoVisiable((prevState) => !prevState);
 			if (!isCardInfoVisiable) {
 				const card = cards.find((card) => card._id === cardId);
@@ -90,6 +161,27 @@ const MainPage = () => {
 
 	const refreshCards = (page = 1) => {
 		fetchUserCards(page);
+	};
+
+	const handleRefreshPrice = async () => {
+		if (selectedCard && selectedCard.name) {
+			const newPrice = await scrapeCardPrice(
+				selectedCard.name,
+				selectedCard.number
+			);
+
+			if (newPrice !== null) {
+				const success = await updateCardPriceInDatabase(
+					selectedCard._id,
+					newPrice.toString()
+				);
+				if (!success) {
+					alert('Failed to update price in database');
+				}
+			} else {
+				alert('Failed to fetch new price');
+			}
+		}
 	};
 
 	if (loading) {
@@ -158,8 +250,11 @@ const MainPage = () => {
 				visible={isCardInfoVisiable}
 				choosenPokemonName={selectedCard?.name}
 				choosenPokemonImage={selectedCard?.imageUrl}
-				choosenPokemonPrice={selectedCard?.price || 'Price not available'}
+				choosenPokemonPrice={selectedCard?.price}
 				showInfoFunction={handleCardClick()}
+				onRefreshPrice={handleRefreshPrice}
+				priceLoading={priceLoading}
+				cardId={selectedCard?._id}
 			/>
 
 			<div className='flex flex-col items-center justify-start space-y-2 w-full h-3/4'>
@@ -191,7 +286,7 @@ const MainPage = () => {
 					)}
 				</div>
 
-				{/* Paginacja - dodaj ten fragment na końcu diva */}
+				{/* Paginacja */}
 				{cards.length > 0 && pagination.totalPages > 1 && (
 					<div className='flex items-center justify-center gap-4 mt-2 w-full'>
 						<button

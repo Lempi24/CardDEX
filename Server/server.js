@@ -13,7 +13,7 @@ connectDB();
 app.use(
 	cors({
 		origin: '*',
-		methods: ['GET', 'POST'],
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	})
 );
 app.use(express.json());
@@ -22,6 +22,22 @@ app.use('/api/auth', authRoute);
 
 app.use('/api/cards', authenticateToken, cardsRoute);
 
+//scrapowanie ceny dodanej karty
+app.post('/api/scrape-price', async (req, res) => {
+	const { cardName, filter, language } = req.body;
+
+	try {
+		const result = await scrapeCard(
+			cardName,
+			filter || 'price trend',
+			language || '1'
+		);
+		res.json(result);
+	} catch (error) {
+		res.status(500).json({ error: 'Failed to scrape price' });
+	}
+});
+//scrapowanie ceny zeskanowanej karty
 app.post('/api/price', async (req, res) => {
 	const { name, number, filter, language } = req.body;
 

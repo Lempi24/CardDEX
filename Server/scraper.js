@@ -83,13 +83,8 @@ async function scrapeCard(cardName, filter, language) {
 				'button[data-testid="uc-accept-all-button"]'
 			);
 			if (cookieButton) {
-				await Promise.all([
-					cookieButton.click(),
-					page.waitForNavigation({
-						waitUntil: 'domcontentloaded',
-						timeout: 5000,
-					}),
-				]);
+				await cookieButton.click();
+				await page.waitForTimeout(500); // Krótkie oczekiwanie zamiast waitForNavigation
 			}
 		} catch (e) {}
 
@@ -102,17 +97,11 @@ async function scrapeCard(cardName, filter, language) {
 
 		if (!firstLinkHref) throw new Error('Nie znaleziono wyników wyszukiwania.');
 
-		// Wymusz angielski URL
+		// Wymusz angielski URL i od razu dodaj parametr języka
 		const englishHref = forceEnglishUrl(firstLinkHref);
-		console.log(`➡️ Wchodzę na: ${englishHref}`);
-
-		await page.goto(englishHref, {
-			waitUntil: 'domcontentloaded',
-			timeout: 10000,
-		});
-
 		const languageUrl = `${englishHref}?language=${language}`;
-		console.log(`🌐 Przełączam na wersję językową: ${languageUrl}`);
+
+		console.log(`➡️ Wchodzę bezpośrednio na: ${languageUrl}`);
 
 		await page.goto(languageUrl, {
 			waitUntil: 'domcontentloaded',
@@ -217,7 +206,6 @@ async function extractPriceData(page, filter) {
 	}
 }
 
-// Rest of the code remains the same...
 async function findImageUrl(page) {
 	try {
 		return await page.evaluate(() => {
