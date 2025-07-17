@@ -2,10 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import authRoute from './routes/UserRoutes.js';
+import cardsRoute from './routes/CardRoutes.js';
 import scrapeCard from './scraper.js';
 import { connectDB } from './config/database.js';
+import { authenticateToken } from './middleware/auth.js';
+
 const app = express();
 connectDB();
+
 app.use(
 	cors({
 		origin: '*',
@@ -15,6 +19,8 @@ app.use(
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
+
+app.use('/api/cards', authenticateToken, cardsRoute);
 
 app.post('/api/price', async (req, res) => {
 	const { name, number, filter, language } = req.body;

@@ -1,7 +1,8 @@
 import Webcam from 'react-webcam';
 import React, { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
-const PokemonScanner = ({ onClose }) => {
+import axios from 'axios';
+const CameraPanel = ({ onClose, onCardAdded }) => {
 	const webcamRef = useRef(null);
 	const scannerBoxRef = useRef(null);
 	const canvasRef = useRef(null);
@@ -180,6 +181,45 @@ const PokemonScanner = ({ onClose }) => {
 	const handleLanguageChange = (e) => {
 		setFilterLanguage(e.target.value);
 	};
+	const addCard = async (pokemonName, cardNumber, cardURL) => {
+		try {
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				console.error('No token found - user not logged in');
+				return;
+			}
+			const response = await axios.post(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/addcard`,
+				{ pokemonName, cardNumber, cardURL },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			if (response.status === 201) {
+				onCardAdded(1);
+				onClose();
+			}
+		} catch (error) {
+			console.error('Wystąpił błąd:', error);
+
+			if (error.response?.status === 401) {
+				console.error('Unauthorized - token expired or invalid');
+				localStorage.removeItem('token');
+			} else if (error.response?.status === 400) {
+				console.error('Bad request:', error.response.data.message);
+			} else {
+				console.error(
+					'Server error:',
+					error.response?.data?.message || error.message
+				);
+			}
+		}
+	};
 	return (
 		<div className='fixed inset-0 z-50 bg-black'>
 			<Webcam
@@ -332,7 +372,10 @@ const PokemonScanner = ({ onClose }) => {
 									>
 										Rescan
 									</button>
-									<button className='border border-accent1 text-accent1 hover:bg-primary/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition'>
+									<button
+										onClick={() => addCard(pokemonName, cardNumber, cardURL)}
+										className='border border-accent1 text-accent1 hover:bg-primary/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition'
+									>
 										Add Card
 									</button>
 									<button
@@ -380,4 +423,4 @@ const PokemonScanner = ({ onClose }) => {
 	);
 };
 
-export default PokemonScanner;
+export default CameraPanel;

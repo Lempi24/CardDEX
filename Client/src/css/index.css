@@ -85,3 +85,16 @@
 .rotate-y-180 {
 	transform: rotateY(180deg);
 }
+.Toastify__toast-body {
+	flex: 1 !important;
+	margin-right: 8px !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+}
+
+.Toastify__close-button {
+	position: static !important;
+	margin-left: auto !important;
+	flex-shrink: 0 !important;
+}

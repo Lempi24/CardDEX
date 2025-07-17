@@ -2,6 +2,7 @@ import FormInput from './FormInput';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 const UserForm = ({
 	isLoging,
 	pText,
@@ -30,7 +31,8 @@ const UserForm = ({
 					navigate('/main-page');
 				}
 			} catch (error) {
-				console.log(error);
+				const msg = error.response?.data?.message || 'Login failed. Try again.';
+				toast.error(msg);
 			}
 		} else {
 			try {
@@ -42,7 +44,9 @@ const UserForm = ({
 					navigate('/');
 				}
 			} catch (error) {
-				console.log(error);
+				const msg =
+					error.response?.data?.message || 'Registration failed. Try again.';
+				toast.error(msg);
 			}
 		}
 	};
@@ -123,10 +127,6 @@ const UserForm = ({
 			</p>
 			<button
 				type='submit'
-				// onClick={(e) => {
-				// 	e.preventDefault();
-				// 	navigate(btnDestination);
-				// }}
 				className='text-sm bg-accent1 p-3 border-2 text-main whitespace-nowrap'
 			>
 				{btnText}
