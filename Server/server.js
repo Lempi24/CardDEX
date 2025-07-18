@@ -19,25 +19,27 @@ app.use(
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
-
 app.use('/api/cards', authenticateToken, cardsRoute);
 
-//scrapowanie ceny dodanej karty
+// ZMODYFIKOWANY ENDPOINT - ODSWIEŻANIE CENY
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;
 
 	try {
+		// Wywołaj scraper z opcją pobrania TYLKO ceny
 		const result = await scrapeCard(
 			cardName,
 			filter || 'price trend',
-			language || '1'
+			language || '1',
+			{ price: true, image: false } // <- KLUCZOWA ZMIANA
 		);
 		res.json(result);
 	} catch (error) {
 		res.status(500).json({ error: 'Failed to scrape price' });
 	}
 });
-//scrapowanie ceny zeskanowanej karty
+
+// ZMODYFIKOWANY ENDPOINT - DODAWANIE NOWEJ KARTY
 app.post('/api/price', async (req, res) => {
 	const { name, number, filter, language } = req.body;
 
@@ -49,7 +51,13 @@ app.post('/api/price', async (req, res) => {
 	console.log(`🔍 Searching for: ${fullName}`);
 
 	try {
-		const result = await scrapeCard(fullName, filter, language);
+		// Wywołaj scraper z domyślnymi opcjami (cena + obrazek)
+		const result = await scrapeCard(
+			fullName,
+			filter || 'price trend',
+			language || '1',
+			{ price: true, image: true } // Jawne przekazanie dla czytelności
+		);
 
 		if (!result) {
 			return res.status(404).json({ error: 'Card data not found' });
@@ -66,6 +74,7 @@ app.post('/api/price', async (req, res) => {
 	}
 });
 
+// Reszta pliku bez zmian
 app.get('/api/card-image', async (req, res) => {
 	const imageUrl = req.query.url;
 

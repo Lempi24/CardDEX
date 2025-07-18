@@ -239,7 +239,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 				className='scan-border fixed w-7/10 h-1/2 border-4 border-accent1 opacity-30 rounded-xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
 			/>
 			{isPokemonFound && (
-				<div className='fixed inset-0 z-50 flex items-center justify-center'>
+				<div className='fixed inset-0 z-50 flex items-center justify-center text-text'>
 					{/* Nowy, główny kontener z pozycjonowaniem względnym */}
 					<div className='relative'>
 						{/* Główny kontener slab-a — dodajemy 'relative' dla ConfirmCardPanel */}
