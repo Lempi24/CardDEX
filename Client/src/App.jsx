@@ -7,7 +7,7 @@ import MyCloseButton from './components/MyCloseButton';
 import ProtectedRoute from './components/ProtectedRoute';
 function App() {
 	return (
-		<div className='w-screen h-screen'>
+		<div className='w-screen h-screen overflow-x-hidden'>
 			<Routes>
 				<Route path='/' element={<Login />} />
 				<Route path='/register' element={<Register />} />

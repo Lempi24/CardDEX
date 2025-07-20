@@ -208,7 +208,7 @@ const MainPage = () => {
 								<button
 									onClick={() => fetchUserCards(pagination.currentPage - 1)}
 									disabled={pagination.currentPage === 1}
-									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed'
+									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 								>
 									{'<'}
 								</button>
@@ -218,7 +218,7 @@ const MainPage = () => {
 								<button
 									onClick={() => fetchUserCards(pagination.currentPage + 1)}
 									disabled={pagination.currentPage === pagination.totalPages}
-									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed'
+									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 								>
 									{'>'}
 								</button>
@@ -229,7 +229,7 @@ const MainPage = () => {
 					{/* Przycisk do dodawania karty */}
 					<button
 						onClick={handleAddCard}
-						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1 cursor-pointer'
+						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1 cursor-pointer bg-main-transparent p-4 rounded-2xl'
 					>
 						+ Add card
 					</button>

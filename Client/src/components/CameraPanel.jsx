@@ -255,7 +255,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 		}
 	};
 	return (
-		<div className='fixed inset-0 z-50 bg-black'>
+		<div className='fixed inset-0 z-50 bg-black text-text'>
 			<Webcam
 				audio={false}
 				ref={webcamRef}
@@ -335,10 +335,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 											: 'opacity-0 max-h-0 overflow-hidden'
 									}`}
 								>
-									<div className='flex items-center justify-between mb-3'>
-										<span className='text-xs font-semibold uppercase'>
-											Price trend
-										</span>
+									<div className='flex items-center justify-end mb-3'>
 										<div className='text-right'>
 											<p className='text-sm'>Current value in PLN</p>
 											<p className='text-2xl font-bold'>
