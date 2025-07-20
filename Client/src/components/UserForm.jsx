@@ -3,14 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-const UserForm = ({
-	isLoging,
-	pText,
-	spanInfo,
-	btnText,
-	destination,
-	btnDestination,
-}) => {
+const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 	const navigate = useNavigate();
 	const {
 		register,

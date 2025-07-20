@@ -144,7 +144,7 @@ const MainPage = () => {
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text'>
-				<div className='max-w-[500px] mx-auto flex flex-col min-h-screen'>
+				<div className='max-w-[700px] mx-auto flex flex-col min-h-screen'>
 					<header className='flex justify-between items-center px-5 py-4 border-b border-filling'>
 						<div className='flex items-center justify-center'>
 							<img src={logo} alt='pokeball logo' className='w-10 h-10' />
@@ -152,7 +152,7 @@ const MainPage = () => {
 						</div>
 						<button
 							onClick={handleLogOut}
-							className='flex items-center gap-2 text-accent1 text-base'
+							className='flex items-center gap-2 text-accent1 text-base cursor-pointer'
 						>
 							<p className=''>Log out</p>
 							<svg
@@ -229,7 +229,7 @@ const MainPage = () => {
 					{/* Przycisk do dodawania karty */}
 					<button
 						onClick={handleAddCard}
-						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1'
+						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1 cursor-pointer'
 					>
 						+ Add card
 					</button>

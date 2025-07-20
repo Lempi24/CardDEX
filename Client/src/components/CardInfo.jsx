@@ -19,8 +19,8 @@ const CardInfo = ({
 				</p>
 				<button
 					onClick={handleRefreshPrice}
-					className='bg-accent1 w-10 h-10 rounded-full flex items-center justify-center disabled:cursor-not-allowed'
-					title='Odśwież cenę'
+					className='bg-accent1 w-10 h-10 rounded-full flex items-center justify-center disabled:cursor-not-allowed cursor-pointer'
+					title='Refresh price'
 					disabled={priceLoading}
 				>
 					{priceLoading ? (

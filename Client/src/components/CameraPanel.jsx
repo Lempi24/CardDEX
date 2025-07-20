@@ -17,6 +17,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 	const [isFlipped, setIsFlipped] = useState(false);
 	const [filterOption, setFilterOption] = useState('from');
 	const [filterLanguage, setFilterLanguage] = useState('1');
+	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const googleVisionApiKey = import.meta.env.VITE_GOOGLEVISION_API_KEY;
 
 	useEffect(() => {
@@ -30,7 +31,40 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 		};
 		getNames();
 	}, []);
+	useEffect(() => {
+		const updateDimensions = () => {
+			const viewportWidth = window.innerWidth;
+			const viewportHeight = window.innerHeight;
+			const aspectRatio = 3 / 4; // Dostosuj do swoich potrzeb
 
+			let width, height;
+
+			if (viewportWidth < 768) {
+				// mobile
+				width = Math.min(viewportWidth * 0.8, 280);
+				height = width / aspectRatio;
+			} else if (viewportWidth < 1024) {
+				// tablet
+				width = Math.min(viewportWidth * 0.5, 320);
+				height = width / aspectRatio;
+			} else {
+				// desktop
+				width = Math.min(viewportWidth * 0.3, 360);
+				height = width / aspectRatio;
+			}
+
+			if (height > viewportHeight * 0.7) {
+				height = viewportHeight * 0.7;
+				width = height * aspectRatio;
+			}
+
+			setDimensions({ width, height });
+		};
+
+		updateDimensions();
+		window.addEventListener('resize', updateDimensions);
+		return () => window.removeEventListener('resize', updateDimensions);
+	}, []);
 	const fetchCardPrice = async () => {
 		setIsFlipped(false);
 		setIsFetchingPrice(true);
@@ -236,7 +270,11 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 
 			<div
 				ref={scannerBoxRef}
-				className='scan-border fixed w-7/10 h-1/2 border-4 border-accent1 opacity-30 rounded-xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
+				className='fixed border-4 border-accent1 opacity-30 rounded-xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
+				style={{
+					width: `${dimensions.width}px`,
+					height: `${dimensions.height}px`,
+				}}
 			/>
 			{isPokemonFound && (
 				<div className='fixed inset-0 z-50 flex items-center justify-center text-text'>

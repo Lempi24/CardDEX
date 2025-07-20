@@ -21,17 +21,15 @@ app.use(express.json());
 app.use('/api/auth', authRoute);
 app.use('/api/cards', authenticateToken, cardsRoute);
 
-// ZMODYFIKOWANY ENDPOINT - ODSWIEŻANIE CENY
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;
 
 	try {
-		// Wywołaj scraper z opcją pobrania TYLKO ceny
 		const result = await scrapeCard(
 			cardName,
 			filter || 'price trend',
 			language || '1',
-			{ price: true, image: false } // <- KLUCZOWA ZMIANA
+			{ price: true, image: false }
 		);
 		res.json(result);
 	} catch (error) {
@@ -39,7 +37,6 @@ app.post('/api/scrape-price', async (req, res) => {
 	}
 });
 
-// ZMODYFIKOWANY ENDPOINT - DODAWANIE NOWEJ KARTY
 app.post('/api/price', async (req, res) => {
 	const { name, number, filter, language } = req.body;
 
@@ -51,12 +48,11 @@ app.post('/api/price', async (req, res) => {
 	console.log(`🔍 Searching for: ${fullName}`);
 
 	try {
-		// Wywołaj scraper z domyślnymi opcjami (cena + obrazek)
 		const result = await scrapeCard(
 			fullName,
 			filter || 'price trend',
 			language || '1',
-			{ price: true, image: true } // Jawne przekazanie dla czytelności
+			{ price: true, image: true }
 		);
 
 		if (!result) {
@@ -74,7 +70,6 @@ app.post('/api/price', async (req, res) => {
 	}
 });
 
-// Reszta pliku bez zmian
 app.get('/api/card-image', async (req, res) => {
 	const imageUrl = req.query.url;
 
