@@ -46,7 +46,7 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 	return (
 		<form
 			action=''
-			className='space-y-6 w-3/4'
+			className='space-y-6 w-3/4 md:w-1/2 xl:w-1/3'
 			onSubmit={handleSubmit(submitCall)}
 		>
 			<div className='flex flex-col gap-4'>
@@ -120,7 +120,7 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 			</p>
 			<button
 				type='submit'
-				className='text-sm bg-accent1 p-3 border-2 text-main whitespace-nowrap'
+				className='text-sm bg-accent1 p-3 border-2 text-main whitespace-nowrap cursor-pointer'
 			>
 				{btnText}
 			</button>

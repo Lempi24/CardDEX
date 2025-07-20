@@ -281,7 +281,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 					{/* Nowy, główny kontener z pozycjonowaniem względnym */}
 					<div className='relative'>
 						{/* Główny kontener slab-a — dodajemy 'relative' dla ConfirmCardPanel */}
-						<div className='relative bg-main w-80 rounded-lg shadow-2xl border-2 border-filling overflow-hidden'>
+						<div className='relative bg-main w-80 md:min-w-[400px] xl:min-w-[500px] rounded-lg shadow-2xl border-2 border-filling overflow-hidden'>
 							{/* Górny panel - sekcja karty */}
 							<div className='p-4 pb-2 border-b-4 border-filling flex flex-col items-center'>
 								<div className='flex justify-between items-center mb-2 gap-10'>
@@ -350,6 +350,29 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 											</p>
 										</div>
 									</div>
+									{/* Przyciski akcji na dole karty */}
+									<div className='flex flex-col justify-end gap-3 border-t border-filling pt-5 px-4'>
+										<button
+											onClick={cancelScanResults}
+											className='border border-negative text-negative hover:bg-negative/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition cursor-pointer'
+										>
+											Rescan
+										</button>
+										<button
+											onClick={() =>
+												addCard(pokemonName, cardNumber, cardPrice, cardURL)
+											}
+											className='border border-accent1 text-accent1 hover:bg-primary/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition cursor-pointer'
+										>
+											Add Card
+										</button>
+										<button
+											onClick={fetchCardPrice}
+											className='bg-accept text-white hover:bg-accept/90 py-2 px-5 rounded-lg shadow-md text-sm font-semibold w-full sm:w-auto transition cursor-pointer'
+										>
+											Confirm
+										</button>
+									</div>
 								</div>
 
 								{/* Panel z filtrami - animowany */}
@@ -389,7 +412,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 												id='language'
 												value={filterLanguage}
 												onChange={handleLanguageChange}
-												className='text-main bg-accent1 p-1'
+												className='text-main bg-accent1 p-1 cursor-pointer'
 											>
 												<option value='1'>English</option>
 												<option value='2'>French</option>
@@ -401,37 +424,13 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 										</div>
 									</div>
 								</div>
-
-								{/* Przyciski akcji na dole karty */}
-								<div className='flex flex-col sm:flex-row justify-end gap-3 border-t border-filling pt-5 px-4'>
-									<button
-										onClick={cancelScanResults}
-										className='border border-negative text-negative hover:bg-negative/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition'
-									>
-										Rescan
-									</button>
-									<button
-										onClick={() =>
-											addCard(pokemonName, cardNumber, cardPrice, cardURL)
-										}
-										className='border border-accent1 text-accent1 hover:bg-primary/10 py-2 px-4 rounded-lg shadow-sm text-sm font-medium w-full sm:w-auto transition'
-									>
-										Add Card
-									</button>
-									<button
-										onClick={fetchCardPrice}
-										className='bg-accept text-white hover:bg-accept/90 py-2 px-5 rounded-lg shadow-md text-sm font-semibold w-full sm:w-auto transition'
-									>
-										Confirm
-									</button>
-								</div>
 							</div>
 						</div>
 
 						{/* Przycisk "Filtry" - pozycjonowany względem kontenera-rodzica */}
 						<button
 							onClick={() => setIsFlipped((prevState) => !prevState)}
-							className='absolute -bottom-4 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-60 bg-accent1 border-2 border-filling text-main py-1 rounded-md font-medium transition-colors duration-300 '
+							className='absolute -bottom-4 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-60 bg-accent1 border-2 border-filling text-main py-1 rounded-md font-medium transition-colors duration-300 cursor-pointer'
 						>
 							{isFlipped ? 'Show Price' : 'Filters'}
 						</button>
@@ -447,7 +446,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 
 				<button
 					onClick={onClose}
-					className='absolute top-0 right-0 p-4 text-accent1 bg-main-transparent ml-auto z-1000'
+					className='absolute top-0 right-0 p-4 text-accent1 bg-main-transparent ml-auto z-1000 cursor-pointer'
 				>
 					X
 				</button>
@@ -456,7 +455,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 			{!isPokemonFound && (
 				<button
 					onClick={capture}
-					className='absolute bottom-10 left-1/2 transform -translate-x-1/2 rounded-full w-16 h-16 bg-main border-accent1 border-2 z-10'
+					className='absolute bottom-10 left-1/2 transform -translate-x-1/2 rounded-full w-16 h-16 bg-main border-accent1 border-2 z-10 cursor-pointer'
 				></button>
 			)}
 		</div>

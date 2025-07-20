@@ -22,7 +22,7 @@ const FormInput = ({ label, type, ...rest }) => {
 					<button
 						type='button'
 						onClick={togglePasswordVisibility}
-						className='absolute right-2 top-1/2 -translate-y-1/2 w-[25px]'
+						className='absolute right-2 top-1/2 -translate-y-1/2 w-[25px] cursor-pointer'
 					>
 						{isPasswordShown ? (
 							<svg
