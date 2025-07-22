@@ -5,6 +5,7 @@ import axios from 'axios';
 import CardInfo from '../components/CardInfo';
 import CameraPanel from '../components/CameraPanel';
 import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
@@ -243,34 +244,48 @@ const MainPage = () => {
 			)}
 
 			{/* Wysuwany panel */}
-			<div
-				className={`fixed inset-0 bg-black/60 transition-opacity duration-300 z-20 ${
-					isCardInfoVisible
-						? 'opacity-100 pointer-events-auto'
-						: 'opacity-0 pointer-events-none'
-				}`}
-				onClick={handleClosePanel}
-			></div>
-
-			<div
-				className={`fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center transition-transform duration-300 ease-in-out z-30 ${
-					isCardInfoVisible ? 'translate-y-0' : 'translate-y-full'
-				}`}
-			>
-				<div className='absolute top-3 h-1 w-12 bg-[#3a3f4b] rounded-full'></div>
-
-				{selectedCard && (
+			<AnimatePresence>
+				{isCardInfoVisible && (
 					<>
-						<CardInfo
-							imageUrl={selectedCard.imageUrl}
-							name={selectedCard.name}
-							price={selectedCard.price}
-							handleRefreshPrice={handleRefreshPrice}
-							priceLoading={priceLoading}
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							className='fixed inset-0 bg-black/60 z-20'
+							onClick={handleClosePanel}
 						/>
+
+						{/* Panel z kartą */}
+						<motion.div
+							className='fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
+							drag='y'
+							dragConstraints={{ top: 0, bottom: 500 }}
+							initial={{ y: '100%' }}
+							animate={{ y: 0 }}
+							exit={{ y: '100%' }}
+							transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+							onDragEnd={(event, info) => {
+								if (info.offset.y > 150) {
+									handleClosePanel();
+								}
+							}}
+						>
+							<div className='absolute top-3 h-1 w-12 bg-[#3a3f4b] rounded-full'></div>
+							{selectedCard && (
+								<>
+									<CardInfo
+										imageUrl={selectedCard.imageUrl}
+										name={selectedCard.name}
+										price={selectedCard.price}
+										handleRefreshPrice={handleRefreshPrice}
+										priceLoading={priceLoading}
+									/>
+								</>
+							)}
+						</motion.div>
 					</>
 				)}
-			</div>
+			</AnimatePresence>
 		</>
 	);
 };

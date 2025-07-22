@@ -1,7 +1,7 @@
 const MyCloseButton = ({ closeToast }) => (
 	<button onClick={closeToast} className='absolute right-3'>
 		<svg
-			className='fill-white w-[32px] h-[32px]'
+			className='fill-white w-[32px] h-[32px] z-10 cursor-pointer'
 			xmlns='http://www.w3.org/2000/svg'
 			viewBox='0 0 24 24'
 			style={{
