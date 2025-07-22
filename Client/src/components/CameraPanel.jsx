@@ -1,7 +1,8 @@
 import Webcam from 'react-webcam';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 const CameraPanel = ({ onClose, onCardAdded }) => {
 	const webcamRef = useRef(null);
 	const scannerBoxRef = useRef(null);
@@ -35,7 +36,7 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 		const updateDimensions = () => {
 			const viewportWidth = window.innerWidth;
 			const viewportHeight = window.innerHeight;
-			const aspectRatio = 3 / 4; // Dostosuj do swoich potrzeb
+			const aspectRatio = 3 / 4;
 
 			let width, height;
 
@@ -96,10 +97,16 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 				}
 			} else {
 				setCardPrice('Not found');
+				toast.error('Something went wrong, try again', {
+					className: 'custom-error-toast',
+				});
 			}
 		} catch (err) {
 			console.error(err);
 			setCardPrice('Not found');
+			toast.error('Something went wrong, try again', {
+				className: 'custom-error-toast',
+			});
 		}
 		setIsFetchingPrice(false);
 	};
@@ -235,10 +242,16 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 			);
 
 			if (response.status === 201) {
+				toast.success('Card added', {
+					className: 'custom-success-toast',
+				});
 				onCardAdded(1);
-				onClose();
+				//onClose();
 			}
 		} catch (error) {
+			toast.error('An error occured, please try again', {
+				className: 'custom-error-toast',
+			});
 			console.error('Wystąpił błąd:', error);
 
 			if (error.response?.status === 401) {

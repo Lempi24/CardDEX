@@ -4,7 +4,7 @@ import logo from '../img/pokeball.png';
 import axios from 'axios';
 import CardInfo from '../components/CardInfo';
 import CameraPanel from '../components/CameraPanel';
-
+import { toast } from 'react-toastify';
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
@@ -128,18 +128,15 @@ const MainPage = () => {
 		);
 		if (newPrice !== null) {
 			await updateCardPriceInDatabase(selectedCard._id, newPrice.toString());
+			toast.success('Price updated!', {
+				className: 'custom-success-toast',
+			});
 		} else {
-			alert('Failed to fetch new price');
+			toast.error('Something went wrong, try again', {
+				className: 'custom-error-toast',
+			});
 		}
 	};
-
-	if (loading && cards.length === 0) {
-		return (
-			<div className='flex justify-center items-center h-screen bg-main text-text text-xl'>
-				Loading...
-			</div>
-		);
-	}
 
 	return (
 		<>
@@ -174,19 +171,21 @@ const MainPage = () => {
 						<h2 className='text-xl font-semibold mb-6 text-center text-text'>
 							Your CardDEX
 						</h2>
-
+						{loading && (
+							<div className='flex justify-center items-center h-screen bg-main text-text text-xl'>
+								Loading...
+							</div>
+						)}
 						{error && (
 							<div className='flex justify-center items-center h-[60vh] text-negative'>
 								{error}
 							</div>
 						)}
-
 						{!error && cards.length === 0 && !loading && (
 							<div className='flex justify-center items-center h-[60vh] text-filling'>
 								You have no cards yet!
 							</div>
 						)}
-
 						<div className='grid grid-cols-3 gap-4'>
 							{cards.map((card) => (
 								<div
@@ -202,7 +201,6 @@ const MainPage = () => {
 								</div>
 							))}
 						</div>
-
 						{pagination.totalPages > 1 && (
 							<div className='flex justify-center items-center gap-4 mt-6'>
 								<button
