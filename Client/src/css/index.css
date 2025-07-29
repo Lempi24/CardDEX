@@ -101,7 +101,7 @@
 .custom-success-toast .Toastify__progress-bar--success {
 	background-color: var(--color-accept);
 }
-.custim-error-toast {
+.custom-error-toast {
 	background-color: var(--color-main) !important;
 }
 .custom-success-toast {

@@ -98,6 +98,38 @@ const MainPage = () => {
 			return false;
 		}
 	};
+	const deleteCard = async (cardId) => {
+		try {
+			const response = await axios.delete(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/deletecard/${cardId}`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('token')}`,
+					},
+				}
+			);
+
+			if (response.status === 200) {
+				setCards((prev) => prev.filter((c) => c._id !== cardId));
+				if (selectedCard?._id === cardId) {
+					setSelectedCard(null);
+					setIsCardInfoVisible(false);
+				}
+				toast.success('Card deleted successfully!', {
+					className: 'custom-success-toast',
+				});
+			} else {
+				toast.error('Failed to delete card', {
+					className: 'custom-error-toast',
+				});
+			}
+		} catch (error) {
+			console.error('Error deleting card:', error);
+			toast.error('Failed to delete card', {
+				className: 'custom-error-toast',
+			});
+		}
+	};
 
 	useEffect(() => {
 		fetchUserCards();
@@ -138,7 +170,6 @@ const MainPage = () => {
 			});
 		}
 	};
-
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text'>
@@ -279,6 +310,7 @@ const MainPage = () => {
 										price={selectedCard.price}
 										handleRefreshPrice={handleRefreshPrice}
 										priceLoading={priceLoading}
+										deleteCard={() => deleteCard(selectedCard._id)}
 									/>
 								</>
 							)}

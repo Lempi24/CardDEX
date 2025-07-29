@@ -66,3 +66,13 @@ export const updateCardPrice = async (req, res) => {
 		res.status(500).json({ message: 'Failed to update card price' });
 	}
 };
+export const deleteCard = async (req, res) => {
+	const cardId = req.params.id;
+	try {
+		await Card.findByIdAndDelete(cardId);
+		res.status(200).json({ message: 'Card deleted successfully' });
+	} catch (error) {
+		console.error('Error deleting card:', error);
+		res.status(500).json({ message: 'Failed to delete card' });
+	}
+};

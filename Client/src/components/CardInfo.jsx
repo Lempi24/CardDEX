@@ -4,6 +4,7 @@ const CardInfo = ({
 	price,
 	handleRefreshPrice,
 	priceLoading,
+	deleteCard,
 }) => {
 	return (
 		<div className='flex flex-col items-center justify-center'>
@@ -34,6 +35,19 @@ const CardInfo = ({
 							<path d='M16 2h-2v2h2v2H4v2H2v5h2V8h12v2h-2v2h2v-2h2V8h2V6h-2V4h-2V2zM6 20h2v2h2v-2H8v-2h12v-2h2v-5h-2v5H8v-2h2v-2H8v2H6v2H4v2h2v2z' />
 						</svg>
 					)}
+				</button>
+				<button
+					onClick={deleteCard}
+					className='bg-negative w-10 h-10 rounded-full flex items-center justify-center disabled:cursor-not-allowed cursor-pointer'
+					title='Refresh price'
+				>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 24 24'
+						className='fill-filling p-2'
+					>
+						<path d='M16 2v4h6v2h-2v14H4V8H2V6h6V2h8zm-2 2h-4v2h4V4zm0 4H6v12h12V8h-4zm-5 2h2v8H9v-8zm6 0h-2v8h2v-8z' />
+					</svg>
 				</button>
 			</div>
 		</div>
