@@ -93,10 +93,17 @@
 .custom-error-toast .Toastify__progress-bar--error {
 	background-color: var(--color-negative);
 }
+
 .custom-success-toast .Toastify__toast-icon svg {
 	color: var(--color-accept) !important;
 	fill: var(--color-accept) !important;
 }
 .custom-success-toast .Toastify__progress-bar--success {
 	background-color: var(--color-accept);
+}
+.custim-error-toast {
+	background-color: var(--color-main) !important;
+}
+.custom-success-toast {
+	background-color: var(--color-main) !important;
 }
