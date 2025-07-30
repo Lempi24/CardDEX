@@ -450,24 +450,30 @@ const CameraPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
 
 			<canvas ref={canvasRef} style={{ display: 'none' }} />
 			<div className='flex absolute top-4 right-0 items-center justify-center w-full h-40'>
-				<p className='absolute left-1/2 transform -translate-x-1/2 whitespace-nowrap text-sm'>
+				<p className='absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-sm'>
 					{scanStatus}
 				</p>
-
+			</div>
+			<div className='absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 ml-8'>
+				{!isPokemonFound && (
+					<button
+						onClick={capture}
+						className='rounded-full w-16 h-16 bg-main border-accent1 border-2 z-10 cursor-pointer'
+					></button>
+				)}
 				<button
 					onClick={onClose}
-					className='absolute top-0 right-0 p-4 text-accent1 bg-main-transparent ml-auto z-1000 cursor-pointer'
+					className='p-2 bg-main-transparent z-1000 cursor-pointer rounded-full'
 				>
-					X
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 24 24'
+						className='fill-accent1 w-[25px]'
+					>
+						<path d='M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z' />
+					</svg>
 				</button>
 			</div>
-
-			{!isPokemonFound && (
-				<button
-					onClick={capture}
-					className='absolute bottom-10 left-1/2 transform -translate-x-1/2 rounded-full w-16 h-16 bg-main border-accent1 border-2 z-10 cursor-pointer'
-				></button>
-			)}
 		</div>
 	);
 };

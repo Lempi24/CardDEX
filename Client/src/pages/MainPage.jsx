@@ -24,7 +24,6 @@ const MainPage = () => {
 		totalPages: 1,
 		limit: 9,
 	});
-	// ✅ NOWOŚĆ: Stan do śledzenia kierunku animacji paginacji
 	const [direction, setDirection] = useState(0);
 
 	const fetchUserCards = async (page = 1) => {
@@ -60,12 +59,11 @@ const MainPage = () => {
 		}
 	};
 
-	// ✅ NOWOŚĆ: Scentralizowana funkcja do zmiany strony
 	const paginate = (newPage) => {
 		if (newPage > pagination.currentPage) {
-			setDirection(1); // Następna strona (animacja z prawej)
+			setDirection(1);
 		} else {
-			setDirection(-1); // Poprzednia strona (animacja z lewej)
+			setDirection(-1);
 		}
 		fetchUserCards(newPage);
 	};
@@ -147,7 +145,6 @@ const MainPage = () => {
 			);
 
 			if (response.status === 200) {
-				// Po usunięciu odświeżamy bieżącą stronę
 				fetchUserCards(pagination.currentPage);
 				if (selectedCard?._id === cardId) {
 					setSelectedCard(null);
@@ -214,7 +211,6 @@ const MainPage = () => {
 		}
 	};
 
-	// ✅ NOWOŚĆ: Definicja wariantów animacji dla przesuwania stron
 	const variants = {
 		enter: (direction) => ({
 			x: direction > 0 ? '100%' : '-100%',
@@ -243,7 +239,7 @@ const MainPage = () => {
 							onClick={handleLogOut}
 							className='flex items-center text-accent1 text-base cursor-pointer'
 						>
-							<p>Log out</p>
+							<p className='text-sm'>Log out</p>
 							<svg
 								fill='none'
 								xmlns='http://www.w3.org/2000/svg'
@@ -279,7 +275,6 @@ const MainPage = () => {
 							</div>
 						)}
 
-						{/* ✅ NOWOŚĆ: Wrapper do animacji i obsługi gestów swipe */}
 						<AnimatePresence initial={false} custom={direction} mode='wait'>
 							<motion.div
 								key={pagination.currentPage}
@@ -292,7 +287,7 @@ const MainPage = () => {
 								drag='x'
 								dragConstraints={{ left: 0, right: 0 }}
 								onDragEnd={(e, { offset, velocity }) => {
-									const swipeThreshold = 50; // Minimalna odległość przesunięcia
+									const swipeThreshold = 50;
 									if (
 										offset.x < -swipeThreshold &&
 										pagination.currentPage < pagination.totalPages
@@ -327,7 +322,6 @@ const MainPage = () => {
 						{pagination.totalPages > 1 && (
 							<div className='flex justify-center items-center gap-4 mt-6'>
 								<button
-									// ✅ ZMIANA: Użycie nowej funkcji paginate
 									onClick={() => paginate(pagination.currentPage - 1)}
 									disabled={pagination.currentPage === 1}
 									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
@@ -338,7 +332,6 @@ const MainPage = () => {
 									Page {pagination.currentPage} of {pagination.totalPages}
 								</span>
 								<button
-									// ✅ ZMIANA: Użycie nowej funkcji paginate
 									onClick={() => paginate(pagination.currentPage + 1)}
 									disabled={pagination.currentPage === pagination.totalPages}
 									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
@@ -381,14 +374,12 @@ const MainPage = () => {
 							className='fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
 							drag='y'
 							dragConstraints={{ top: 0, bottom: 500 }}
-							dragSnapToOrigin={true} // Pomaga panelowi wrócić na miejsce, jeśli nie zostanie zamknięty
+							dragSnapToOrigin={true}
 							initial={{ y: '100%' }}
 							animate={{ y: 0 }}
 							exit={{ y: '100%' }}
 							transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-							// ✅ POPRAWKA: Ulepszona logika zamykania panelu
 							onDragEnd={(event, info) => {
-								// Zamknij, jeśli przeciągnięto wystarczająco daleko LUB z odpowiednią prędkością
 								if (info.offset.y > 200 || info.velocity.y > 300) {
 									handleClosePanel();
 								}
