@@ -20,14 +20,12 @@ A full-stack web app built with **React, TailwindCSS, Node.js and MongoDB** that
 
 ## Features
 
-### Current:
-
 - Search for a Pokémon card by name
 - Fetch current price from Cardmarket.com
 - Display basic pricing info in a clean UI
 - User accounts & authentication
 - Token-based auth (JWT)
-
-### Upcoming (planned):
-
 - Virtual card album (save your scanned cards)
+
+
+
