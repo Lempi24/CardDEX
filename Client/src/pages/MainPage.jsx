@@ -16,13 +16,16 @@ const MainPage = () => {
 	const [error, setError] = useState(null);
 	const [priceLoading, setPriceLoading] = useState(false);
 	const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
-	const [userCardsValue, setUserCardsValue] = useState([]);
+	const [userCardsValue, setUserCardsValue] = useState(null);
 	const navigate = useNavigate();
+
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		totalPages: 1,
 		limit: 9,
 	});
+	// ✅ NOWOŚĆ: Stan do śledzenia kierunku animacji paginacji
+	const [direction, setDirection] = useState(0);
 
 	const fetchUserCards = async (page = 1) => {
 		try {
@@ -55,6 +58,16 @@ const MainPage = () => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	// ✅ NOWOŚĆ: Scentralizowana funkcja do zmiany strony
+	const paginate = (newPage) => {
+		if (newPage > pagination.currentPage) {
+			setDirection(1); // Następna strona (animacja z prawej)
+		} else {
+			setDirection(-1); // Poprzednia strona (animacja z lewej)
+		}
+		fetchUserCards(newPage);
 	};
 
 	const fetchUserCardsValue = async () => {
@@ -134,7 +147,8 @@ const MainPage = () => {
 			);
 
 			if (response.status === 200) {
-				setCards((prev) => prev.filter((c) => c._id !== cardId));
+				// Po usunięciu odświeżamy bieżącą stronę
+				fetchUserCards(pagination.currentPage);
 				if (selectedCard?._id === cardId) {
 					setSelectedCard(null);
 					setIsCardInfoVisible(false);
@@ -200,6 +214,22 @@ const MainPage = () => {
 		}
 	};
 
+	// ✅ NOWOŚĆ: Definicja wariantów animacji dla przesuwania stron
+	const variants = {
+		enter: (direction) => ({
+			x: direction > 0 ? '100%' : '-100%',
+			opacity: 0,
+		}),
+		center: {
+			x: 0,
+			opacity: 1,
+		},
+		exit: (direction) => ({
+			x: direction < 0 ? '100%' : '-100%',
+			opacity: 0,
+		}),
+	};
+
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text'>
@@ -228,13 +258,13 @@ const MainPage = () => {
 						</button>
 					</header>
 
-					<main className='px-4 py-6 pb-[100px]'>
+					<main className='px-4 py-6 pb-[100px] overflow-x-hidden'>
 						<h2 className='text-xl font-semibold mb-6 text-center text-text'>
 							Your CardDEX is worth{' '}
 							{userCardsValue ? Number(userCardsValue).toFixed(2) : '0.00'} PLN
 						</h2>
-						{loading && (
-							<div className='flex justify-center items-center h-screen text-xl'>
+						{loading && cards.length === 0 && (
+							<div className='flex justify-center items-center h-[60vh] text-xl'>
 								Loading...
 							</div>
 						)}
@@ -248,25 +278,57 @@ const MainPage = () => {
 								You have no cards yet!
 							</div>
 						)}
-						<div className='grid grid-cols-3 gap-4'>
-							{cards.map((card) => (
-								<div
-									key={card._id}
-									className='bg-binder rounded-lg overflow-hidden cursor-pointer transition-transform duration-200 shadow-lg aspect-[5/7] active:scale-95'
-									onClick={() => handleCardClick(card)}
-								>
-									<img
-										src={card.imageUrl}
-										alt={card.name}
-										className='w-full h-full object-cover'
-									/>
+
+						{/* ✅ NOWOŚĆ: Wrapper do animacji i obsługi gestów swipe */}
+						<AnimatePresence initial={false} custom={direction} mode='wait'>
+							<motion.div
+								key={pagination.currentPage}
+								custom={direction}
+								variants={variants}
+								initial='enter'
+								animate='center'
+								exit='exit'
+								transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+								drag='x'
+								dragConstraints={{ left: 0, right: 0 }}
+								onDragEnd={(e, { offset, velocity }) => {
+									const swipeThreshold = 50; // Minimalna odległość przesunięcia
+									if (
+										offset.x < -swipeThreshold &&
+										pagination.currentPage < pagination.totalPages
+									) {
+										paginate(pagination.currentPage + 1);
+									} else if (
+										offset.x > swipeThreshold &&
+										pagination.currentPage > 1
+									) {
+										paginate(pagination.currentPage - 1);
+									}
+								}}
+							>
+								<div className='grid grid-cols-3 gap-4'>
+									{cards.map((card) => (
+										<div
+											key={card._id}
+											className='bg-binder rounded-lg overflow-hidden cursor-pointer transition-transform duration-200 shadow-lg aspect-[5/7] active:scale-95'
+											onClick={() => handleCardClick(card)}
+										>
+											<img
+												src={card.imageUrl}
+												alt={card.name}
+												className='w-full h-full object-cover'
+											/>
+										</div>
+									))}
 								</div>
-							))}
-						</div>
+							</motion.div>
+						</AnimatePresence>
+
 						{pagination.totalPages > 1 && (
 							<div className='flex justify-center items-center gap-4 mt-6'>
 								<button
-									onClick={() => fetchUserCards(pagination.currentPage - 1)}
+									// ✅ ZMIANA: Użycie nowej funkcji paginate
+									onClick={() => paginate(pagination.currentPage - 1)}
 									disabled={pagination.currentPage === 1}
 									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 								>
@@ -276,7 +338,8 @@ const MainPage = () => {
 									Page {pagination.currentPage} of {pagination.totalPages}
 								</span>
 								<button
-									onClick={() => fetchUserCards(pagination.currentPage + 1)}
+									// ✅ ZMIANA: Użycie nowej funkcji paginate
+									onClick={() => paginate(pagination.currentPage + 1)}
 									disabled={pagination.currentPage === pagination.totalPages}
 									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 								>
@@ -318,12 +381,15 @@ const MainPage = () => {
 							className='fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
 							drag='y'
 							dragConstraints={{ top: 0, bottom: 500 }}
+							dragSnapToOrigin={true} // Pomaga panelowi wrócić na miejsce, jeśli nie zostanie zamknięty
 							initial={{ y: '100%' }}
 							animate={{ y: 0 }}
 							exit={{ y: '100%' }}
 							transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+							// ✅ POPRAWKA: Ulepszona logika zamykania panelu
 							onDragEnd={(event, info) => {
-								if (info.offset.y > 150) {
+								// Zamknij, jeśli przeciągnięto wystarczająco daleko LUB z odpowiednią prędkością
+								if (info.offset.y > 200 || info.velocity.y > 300) {
 									handleClosePanel();
 								}
 							}}

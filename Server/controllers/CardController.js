@@ -1,5 +1,4 @@
 import Card from '../models/Card.js';
-
 export const addCard = async (req, res) => {
 	const { pokemonName, cardNumber, cardPrice, cardURL } = req.body;
 	try {
