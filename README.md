@@ -1,6 +1,6 @@
 # Pokemon Card Scanner App
 
-Live: https://carddex-production-2219.up.railway.app/
+Live: https://www.carddex.pl/
 
 A full-stack web app built with **React, TailwindCSS, Node.js and MongoDB** that lets you scan/search Pokémon card names and fetch their current prices from **Cardmarket** using a simple web scraper.
 
@@ -20,14 +20,12 @@ A full-stack web app built with **React, TailwindCSS, Node.js and MongoDB** that
 
 ## Features
 
-### Current:
-
 - Search for a Pokémon card by name
 - Fetch current price from Cardmarket.com
 - Display basic pricing info in a clean UI
 - User accounts & authentication
 - Token-based auth (JWT)
-
-### Upcoming (planned):
-
 - Virtual card album (save your scanned cards)
+
+
+
