@@ -76,3 +76,16 @@ export const deleteCard = async (req, res) => {
 		res.status(500).json({ message: 'Failed to delete card' });
 	}
 };
+export const fetchUserCardsValue = async (req, res) => {
+	try {
+		const cards = await Card.find({ ownerId: req.user._id });
+		const totalValue = cards.reduce(
+			(sum, card) => sum + parseFloat(card.price || 0),
+			0
+		);
+		res.status(200).json({ cards, totalValue });
+	} catch (error) {
+		console.error('Error fetching user cards value:', error);
+		res.status(500).json({ message: 'Failed to fetch user cards value' });
+	}
+};

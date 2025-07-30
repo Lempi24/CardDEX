@@ -4,15 +4,40 @@ const CardInfo = ({
 	price,
 	handleRefreshPrice,
 	priceLoading,
-	deleteCard,
+	handleDeleteCard,
+	showDeleteOverlay,
+	onConfirmDelete,
+	onCancelDelete,
 }) => {
 	return (
 		<div className='flex flex-col items-center justify-center'>
-			<img
-				src={imageUrl}
-				alt={name}
-				className='w-3/4 max-w-[250px] rounded-xl mb-6 shadow-xl'
-			/>
+			<div className='relative w-3/4 max-w-[250px] rounded-xl mb-6 shadow-xl'>
+				<img
+					src={imageUrl}
+					alt={name}
+					className='w-full h-full object-cover rounded-xl'
+				/>
+				{showDeleteOverlay && (
+					<div className='absolute inset-0 bg-negative-transparent flex flex-col items-center justify-center rounded-xl z-10'>
+						<p className='text-xl text-white font-bold mb-4 text-center'>
+							Are you sure?
+						</p>
+						<button
+							onClick={onConfirmDelete}
+							className='bg-negative text-white py-2 px-6 rounded-lg mb-2 cursor-pointer'
+						>
+							Delete
+						</button>
+						<button
+							onClick={onCancelDelete}
+							className='text-white underline text-sm cursor-pointer'
+						>
+							Cancel
+						</button>
+					</div>
+				)}
+			</div>
+
 			<h3 className='text-3xl text-text text-center mb-2 capitalize'>{name}</h3>
 			<div className='flex items-center gap-3 mb-6'>
 				<p className='text-2xl font-semibold text-accent1'>
@@ -37,9 +62,9 @@ const CardInfo = ({
 					)}
 				</button>
 				<button
-					onClick={deleteCard}
+					onClick={handleDeleteCard}
 					className='bg-negative w-10 h-10 rounded-full flex items-center justify-center disabled:cursor-not-allowed cursor-pointer'
-					title='Refresh price'
+					title='Delete card'
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -53,4 +78,5 @@ const CardInfo = ({
 		</div>
 	);
 };
+
 export default CardInfo;

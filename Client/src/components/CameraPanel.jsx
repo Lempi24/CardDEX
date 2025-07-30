@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-const CameraPanel = ({ onClose, onCardAdded }) => {
+const CameraPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
 	const webcamRef = useRef(null);
 	const scannerBoxRef = useRef(null);
 	const canvasRef = useRef(null);
@@ -245,8 +245,8 @@ const CameraPanel = ({ onClose, onCardAdded }) => {
 				toast.success('Card added', {
 					className: 'custom-success-toast',
 				});
+				refreshCardsValue();
 				onCardAdded(1);
-				//onClose();
 			}
 		} catch (error) {
 			toast.error('An error occured, please try again', {

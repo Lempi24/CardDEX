@@ -11,6 +11,7 @@
 	--color-filling-transparent: #3d4a5f67;
 	--color-accept: #4caf50;
 	--color-negative: #f44336;
+	--color-negative-transparent: #f4433691;
 }
 @layer base {
 	html {

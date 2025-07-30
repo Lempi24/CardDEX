@@ -6,6 +6,7 @@ import CardInfo from '../components/CardInfo';
 import CameraPanel from '../components/CameraPanel';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
@@ -14,6 +15,8 @@ const MainPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [priceLoading, setPriceLoading] = useState(false);
+	const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
+	const [userCardsValue, setUserCardsValue] = useState([]);
 	const navigate = useNavigate();
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
@@ -51,6 +54,26 @@ const MainPage = () => {
 			}
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const fetchUserCardsValue = async () => {
+		try {
+			const token = localStorage.getItem('token');
+			if (!token) {
+				navigate('/');
+				return;
+			}
+			const response = await axios.get(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/fetch-value`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			);
+			setUserCardsValue(response.data.totalValue);
+		} catch (error) {
+			console.error('Error fetching user cards value:', error);
+			setError('Failed to load user cards value.');
 		}
 	};
 
@@ -98,6 +121,7 @@ const MainPage = () => {
 			return false;
 		}
 	};
+
 	const deleteCard = async (cardId) => {
 		try {
 			const response = await axios.delete(
@@ -118,6 +142,8 @@ const MainPage = () => {
 				toast.success('Card deleted successfully!', {
 					className: 'custom-success-toast',
 				});
+				fetchUserCardsValue();
+				setShowDeleteOverlay(false);
 			} else {
 				toast.error('Failed to delete card', {
 					className: 'custom-error-toast',
@@ -132,12 +158,14 @@ const MainPage = () => {
 	};
 
 	useEffect(() => {
+		fetchUserCardsValue();
 		fetchUserCards();
 	}, []);
 
 	const handleCardClick = (card) => {
 		setSelectedCard(card);
 		setIsCardInfoVisible(true);
+		setShowDeleteOverlay(false);
 	};
 
 	const handleClosePanel = () => {
@@ -164,12 +192,14 @@ const MainPage = () => {
 			toast.success('Price updated!', {
 				className: 'custom-success-toast',
 			});
+			fetchUserCardsValue();
 		} else {
 			toast.error('Something went wrong, try again', {
 				className: 'custom-error-toast',
 			});
 		}
 	};
+
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text'>
@@ -181,9 +211,9 @@ const MainPage = () => {
 						</div>
 						<button
 							onClick={handleLogOut}
-							className='flex items-center gap-2 text-accent1 text-base cursor-pointer'
+							className='flex items-center text-accent1 text-base cursor-pointer'
 						>
-							<p className=''>Log out</p>
+							<p>Log out</p>
 							<svg
 								fill='none'
 								xmlns='http://www.w3.org/2000/svg'
@@ -198,13 +228,13 @@ const MainPage = () => {
 						</button>
 					</header>
 
-					{/* Main */}
 					<main className='px-4 py-6 pb-[100px]'>
 						<h2 className='text-xl font-semibold mb-6 text-center text-text'>
-							Your CardDEX
+							Your CardDEX is worth{' '}
+							{userCardsValue ? Number(userCardsValue).toFixed(2) : '0.00'} PLN
 						</h2>
 						{loading && (
-							<div className='flex justify-center items-center h-screen bg-main text-text text-xl'>
+							<div className='flex justify-center items-center h-screen text-xl'>
 								Loading...
 							</div>
 						)}
@@ -256,7 +286,6 @@ const MainPage = () => {
 						)}
 					</main>
 
-					{/* Przycisk do dodawania karty */}
 					<button
 						onClick={handleAddCard}
 						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1 cursor-pointer bg-main-transparent p-4 rounded-2xl'
@@ -266,15 +295,14 @@ const MainPage = () => {
 				</div>
 			</div>
 
-			{/* Panel kamery */}
 			{isCameraVisiable && (
 				<CameraPanel
+					refreshCardsValue={() => fetchUserCardsValue()}
 					onClose={() => setIsCameraVisiable(false)}
 					onCardAdded={() => fetchUserCards(pagination.currentPage)}
 				/>
 			)}
 
-			{/* Wysuwany panel */}
 			<AnimatePresence>
 				{isCardInfoVisible && (
 					<>
@@ -286,7 +314,6 @@ const MainPage = () => {
 							onClick={handleClosePanel}
 						/>
 
-						{/* Panel z kartą */}
 						<motion.div
 							className='fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
 							drag='y'
@@ -303,16 +330,17 @@ const MainPage = () => {
 						>
 							<div className='absolute top-3 h-1 w-12 bg-[#3a3f4b] rounded-full'></div>
 							{selectedCard && (
-								<>
-									<CardInfo
-										imageUrl={selectedCard.imageUrl}
-										name={selectedCard.name}
-										price={selectedCard.price}
-										handleRefreshPrice={handleRefreshPrice}
-										priceLoading={priceLoading}
-										deleteCard={() => deleteCard(selectedCard._id)}
-									/>
-								</>
+								<CardInfo
+									imageUrl={selectedCard.imageUrl}
+									name={selectedCard.name}
+									price={selectedCard.price}
+									handleRefreshPrice={handleRefreshPrice}
+									priceLoading={priceLoading}
+									handleDeleteCard={() => setShowDeleteOverlay(true)}
+									showDeleteOverlay={showDeleteOverlay}
+									onConfirmDelete={() => deleteCard(selectedCard._id)}
+									onCancelDelete={() => setShowDeleteOverlay(false)}
+								/>
 							)}
 						</motion.div>
 					</>

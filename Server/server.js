@@ -21,6 +21,7 @@ app.use(express.json());
 app.use('/api/auth', authRoute);
 app.use('/api/cards', authenticateToken, cardsRoute);
 
+//scrapowanie samej ceny karty
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;
 
@@ -37,6 +38,7 @@ app.post('/api/scrape-price', async (req, res) => {
 	}
 });
 
+//scrapowanie ceny i obrazka karty
 app.post('/api/price', async (req, res) => {
 	const { name, number, filter, language } = req.body;
 
