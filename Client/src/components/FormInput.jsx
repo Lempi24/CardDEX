@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const FormInput = ({ label, type, ...rest }) => {
+const FormInput = ({ label, placeholder, type, value, onChange, ...rest }) => {
 	const [isPasswordShown, setIsPasswordShown] = useState(false);
 	const togglePasswordVisibility = () => {
 		setIsPasswordShown((prevState) => !prevState);
@@ -13,7 +13,9 @@ const FormInput = ({ label, type, ...rest }) => {
 			<div className='form-input relative'>
 				<input
 					type={isPasswordShown ? 'input' : type}
-					placeholder={label + '...'}
+					placeholder={placeholder + '...'}
+					value={value}
+					onChange={onChange}
 					{...rest}
 					className=' bg-filling p-2 placeholder:text-sm w-full 
              border-2 border-black ring-1 ring-black focus:ring-2 focus:ring-accent1 outline-none'

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../img/pokeball.png';
 import axios from 'axios';
 import CardInfo from '../components/CardInfo';
 import CameraPanel from '../components/CameraPanel';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import useMediaQuery from '../hooks/useMediaQuery';
+import Header from '../components/Header';
+import Nav from '../components/Nav';
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
@@ -17,35 +18,36 @@ const MainPage = () => {
 	const [priceLoading, setPriceLoading] = useState(false);
 	const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
 	const [userCardsValue, setUserCardsValue] = useState(null);
-	const navigate = useNavigate();
-
+	const [isCardShared, setIsCardShared] = useState(false);
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		totalPages: 1,
-		limit: 9,
 	});
 	const [direction, setDirection] = useState(0);
+	const navigate = useNavigate();
+
+	const isMobile = useMediaQuery('(max-width: 768px)');
+	const paginationLimit = isMobile ? 9 : 12;
 
 	const fetchUserCards = async (page = 1) => {
+		setLoading(true);
+		setError(null);
 		try {
-			setLoading(true);
-			setError(null);
 			const token = localStorage.getItem('token');
 			if (!token) {
 				navigate('/');
 				return;
 			}
 			const response = await axios.get(
-				`${import.meta.env.VITE_BACKEND_URL}/api/cards?page=${page}&limit=9`,
-				{
-					headers: { Authorization: `Bearer ${token}` },
-				}
+				`${
+					import.meta.env.VITE_BACKEND_URL
+				}/api/cards?page=${page}&limit=${paginationLimit}`,
+				{ headers: { Authorization: `Bearer ${token}` } }
 			);
 			setCards(response.data.cards);
 			setPagination({
 				currentPage: response.data.currentPage,
 				totalPages: response.data.totalPages,
-				limit: 9,
 			});
 		} catch (err) {
 			console.error('Error fetching cards:', err);
@@ -59,6 +61,28 @@ const MainPage = () => {
 		}
 	};
 
+	const fetchUserCardsValue = async () => {
+		try {
+			const token = localStorage.getItem('token');
+			if (!token) return;
+			const response = await axios.get(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/fetch-value`,
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			setUserCardsValue(response.data.totalValue);
+		} catch (error) {
+			console.error('Error fetching user cards value:', error);
+		}
+	};
+
+	useEffect(() => {
+		fetchUserCardsValue();
+	}, []);
+
+	useEffect(() => {
+		fetchUserCards(1);
+	}, [paginationLimit]);
+
 	const paginate = (newPage) => {
 		if (newPage > pagination.currentPage) {
 			setDirection(1);
@@ -66,26 +90,6 @@ const MainPage = () => {
 			setDirection(-1);
 		}
 		fetchUserCards(newPage);
-	};
-
-	const fetchUserCardsValue = async () => {
-		try {
-			const token = localStorage.getItem('token');
-			if (!token) {
-				navigate('/');
-				return;
-			}
-			const response = await axios.get(
-				`${import.meta.env.VITE_BACKEND_URL}/api/cards/fetch-value`,
-				{
-					headers: { Authorization: `Bearer ${token}` },
-				}
-			);
-			setUserCardsValue(response.data.totalValue);
-		} catch (error) {
-			console.error('Error fetching user cards value:', error);
-			setError('Failed to load user cards value.');
-		}
 	};
 
 	const scrapeCardPrice = async (cardName, cardNumber) => {
@@ -124,54 +128,55 @@ const MainPage = () => {
 				if (selectedCard?._id === cardId) {
 					setSelectedCard((prev) => ({ ...prev, price: newPrice }));
 				}
-				return true;
 			}
-			return false;
 		} catch (error) {
 			console.error('Error updating card price:', error);
-			return false;
 		}
 	};
-
-	const deleteCard = async (cardId) => {
+	const shareCard = async (cardId) => {
 		try {
-			const response = await axios.delete(
-				`${import.meta.env.VITE_BACKEND_URL}/api/cards/deletecard/${cardId}`,
+			const response = await axios.put(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/share`,
+				{ cardId },
 				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('token')}`,
-					},
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
 				}
 			);
-
-			if (response.status === 200) {
-				fetchUserCards(pagination.currentPage);
-				if (selectedCard?._id === cardId) {
-					setSelectedCard(null);
-					setIsCardInfoVisible(false);
-				}
-				toast.success('Card deleted successfully!', {
-					className: 'custom-success-toast',
-				});
-				fetchUserCardsValue();
-				setShowDeleteOverlay(false);
-			} else {
-				toast.error('Failed to delete card', {
-					className: 'custom-error-toast',
-				});
-			}
-		} catch (error) {
-			console.error('Error deleting card:', error);
-			toast.error('Failed to delete card', {
-				className: 'custom-error-toast',
+			const updatedCard = response.data;
+			setSelectedCard(updatedCard);
+			setCards((prevCards) =>
+				prevCards.map((card) =>
+					card._id === updatedCard._id ? updatedCard : card
+				)
+			);
+			toast.info('Share status changed!', {
+				className: 'custom-info-toast',
 			});
+		} catch (error) {
+			console.error('Failed to update share status:', error);
 		}
 	};
-
-	useEffect(() => {
-		fetchUserCardsValue();
-		fetchUserCards();
-	}, []);
+	const deleteCard = async (cardId) => {
+		try {
+			await axios.delete(
+				`${import.meta.env.VITE_BACKEND_URL}/api/cards/deletecard/${cardId}`,
+				{
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+				}
+			);
+			toast.success('Card deleted successfully!', {
+				className: 'custom-success-toast',
+			});
+			fetchUserCards(pagination.currentPage);
+			fetchUserCardsValue();
+			setShowDeleteOverlay(false);
+			setIsCardInfoVisible(false);
+			setSelectedCard(null);
+		} catch (error) {
+			console.error('Error deleting card:', error);
+			toast.error('Failed to delete card');
+		}
+	};
 
 	const handleCardClick = (card) => {
 		setSelectedCard(card);
@@ -179,14 +184,8 @@ const MainPage = () => {
 		setShowDeleteOverlay(false);
 	};
 
-	const handleClosePanel = () => {
-		setIsCardInfoVisible(false);
-	};
-
-	const handleAddCard = () => {
-		setIsCameraVisiable(true);
-	};
-
+	const handleClosePanel = () => setIsCardInfoVisible(false);
+	const handleAddCard = () => setIsCameraVisiable(true);
 	const handleLogOut = () => {
 		localStorage.removeItem('token');
 		navigate('/');
@@ -205,162 +204,124 @@ const MainPage = () => {
 			});
 			fetchUserCardsValue();
 		} else {
-			toast.error('Something went wrong, try again', {
-				className: 'custom-error-toast',
-			});
+			toast.error('Something went wrong, try again');
 		}
 	};
 
 	const variants = {
-		enter: (direction) => ({
-			x: direction > 0 ? '100%' : '-100%',
-			opacity: 0,
-		}),
-		center: {
-			x: 0,
-			opacity: 1,
-		},
-		exit: (direction) => ({
-			x: direction < 0 ? '100%' : '-100%',
-			opacity: 0,
-		}),
+		enter: (direction) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0 }),
+		center: { x: 0, opacity: 1 },
+		exit: (direction) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
 	};
 
 	return (
 		<>
-			<div className='min-h-screen bg-main text-text'>
-				<div className='max-w-[700px] mx-auto flex flex-col min-h-screen'>
-					<header className='flex justify-between items-center px-5 py-4 border-b border-filling'>
-						<div className='flex items-center justify-center'>
-							<img src={logo} alt='pokeball logo' className='w-10 h-10' />
-							<h2 className='ml-3 text-xl font-bold'>CardDEX</h2>
+			<div className='min-h-screen bg-main text-text pb-[65px]'>
+				<Header handleLogOut={handleLogOut} />
+				<main className='max-w-[700px] mx-auto px-4 py-6'>
+					<h2 className='text-xl font-semibold mb-6 text-center text-text'>
+						Your CardDEX is worth ~{' '}
+						{userCardsValue ? Number(userCardsValue).toFixed(2) : '0.00'} PLN
+					</h2>
+
+					{loading && cards.length === 0 && (
+						<div className='flex justify-center items-center h-[60vh] text-xl'>
+							Loading...
 						</div>
-						<button
-							onClick={handleLogOut}
-							className='flex items-center text-accent1 text-base cursor-pointer'
+					)}
+					{error && (
+						<div className='flex justify-center items-center h-[60vh] text-negative'>
+							{error}
+						</div>
+					)}
+					{!error && cards.length === 0 && !loading && (
+						<div className='flex justify-center items-center h-[60vh] text-filling'>
+							You have no cards yet!
+						</div>
+					)}
+
+					<AnimatePresence initial={false} custom={direction} mode='wait'>
+						<motion.div
+							key={pagination.currentPage}
+							custom={direction}
+							variants={variants}
+							initial='enter'
+							animate='center'
+							exit='exit'
+							transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+							drag='x'
+							dragConstraints={{ left: 0, right: 0 }}
+							onDragEnd={(e, { offset }) => {
+								const swipeThreshold = 50;
+								if (
+									offset.x < -swipeThreshold &&
+									pagination.currentPage < pagination.totalPages
+								) {
+									paginate(pagination.currentPage + 1);
+								} else if (
+									offset.x > swipeThreshold &&
+									pagination.currentPage > 1
+								) {
+									paginate(pagination.currentPage - 1);
+								}
+							}}
 						>
-							<p className='text-sm'>Log out</p>
-							<svg
-								fill='none'
-								xmlns='http://www.w3.org/2000/svg'
-								viewBox='0 0 24 24'
-								className='w-10'
+							<div
+								className={
+									isMobile ? 'grid grid-cols-3 gap-3' : 'grid grid-cols-4 gap-4'
+								}
 							>
-								<path
-									d='M5 3h16v4h-2V5H5v14h14v-2h2v4H3V3h2zm16 8h-2V9h-2V7h-2v2h2v2H7v2h10v2h-2v2h2v-2h2v-2h2v-2z'
-									fill='currentColor'
-								/>
-							</svg>
-						</button>
-					</header>
+								{cards.map((card) => (
+									<div
+										key={card._id}
+										className='bg-binder rounded-lg overflow-hidden cursor-pointer transition-transform duration-200 shadow-lg aspect-[5/7] active:scale-95'
+										onClick={() => handleCardClick(card)}
+									>
+										<img
+											src={card.imageUrl}
+											alt={card.name}
+											className='w-full h-full object-cover'
+										/>
+									</div>
+								))}
+							</div>
+						</motion.div>
+					</AnimatePresence>
 
-					<main className='px-4 py-6 pb-[100px] overflow-x-hidden'>
-						<h2 className='text-xl font-semibold mb-6 text-center text-text'>
-							Your CardDEX is worth{' '}
-							{userCardsValue ? Number(userCardsValue).toFixed(2) : '0.00'} PLN
-						</h2>
-						{loading && cards.length === 0 && (
-							<div className='flex justify-center items-center h-[60vh] text-xl'>
-								Loading...
-							</div>
-						)}
-						{error && (
-							<div className='flex justify-center items-center h-[60vh] text-negative'>
-								{error}
-							</div>
-						)}
-						{!error && cards.length === 0 && !loading && (
-							<div className='flex justify-center items-center h-[60vh] text-filling'>
-								You have no cards yet!
-							</div>
-						)}
-
-						<AnimatePresence initial={false} custom={direction} mode='wait'>
-							<motion.div
-								key={pagination.currentPage}
-								custom={direction}
-								variants={variants}
-								initial='enter'
-								animate='center'
-								exit='exit'
-								transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-								drag='x'
-								dragConstraints={{ left: 0, right: 0 }}
-								onDragEnd={(e, { offset, velocity }) => {
-									const swipeThreshold = 50;
-									if (
-										offset.x < -swipeThreshold &&
-										pagination.currentPage < pagination.totalPages
-									) {
-										paginate(pagination.currentPage + 1);
-									} else if (
-										offset.x > swipeThreshold &&
-										pagination.currentPage > 1
-									) {
-										paginate(pagination.currentPage - 1);
-									}
-								}}
+					{pagination.totalPages > 1 && !loading && (
+						<div className='flex justify-center items-center gap-4 mt-6'>
+							<button
+								onClick={() => paginate(pagination.currentPage - 1)}
+								disabled={pagination.currentPage === 1}
+								className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 							>
-								<div className='grid grid-cols-3 gap-4'>
-									{cards.map((card) => (
-										<div
-											key={card._id}
-											className='bg-binder rounded-lg overflow-hidden cursor-pointer transition-transform duration-200 shadow-lg aspect-[5/7] active:scale-95'
-											onClick={() => handleCardClick(card)}
-										>
-											<img
-												src={card.imageUrl}
-												alt={card.name}
-												className='w-full h-full object-cover'
-											/>
-										</div>
-									))}
-								</div>
-							</motion.div>
-						</AnimatePresence>
-
-						{pagination.totalPages > 1 && (
-							<div className='flex justify-center items-center gap-4 mt-6'>
-								<button
-									onClick={() => paginate(pagination.currentPage - 1)}
-									disabled={pagination.currentPage === 1}
-									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
-								>
-									{'<'}
-								</button>
-								<span className='text-text'>
-									Page {pagination.currentPage} of {pagination.totalPages}
-								</span>
-								<button
-									onClick={() => paginate(pagination.currentPage + 1)}
-									disabled={pagination.currentPage === pagination.totalPages}
-									className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
-								>
-									{'>'}
-								</button>
-							</div>
-						)}
-					</main>
-
-					<button
-						onClick={handleAddCard}
-						className='fixed bottom-4 left-1/2 -translate-x-1/2 text-accent1 cursor-pointer bg-main-transparent p-4 rounded-2xl'
-					>
-						+ Add card
-					</button>
-				</div>
+								{'<'}
+							</button>
+							<span className='text-text'>
+								Page {pagination.currentPage} of {pagination.totalPages}
+							</span>
+							<button
+								onClick={() => paginate(pagination.currentPage + 1)}
+								disabled={pagination.currentPage === pagination.totalPages}
+								className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
+							>
+								{'>'}
+							</button>
+						</div>
+					)}
+				</main>
 			</div>
-
+			<Nav handleAddCard={handleAddCard} />
 			{isCameraVisiable && (
 				<CameraPanel
-					refreshCardsValue={() => fetchUserCardsValue()}
+					refreshCardsValue={fetchUserCardsValue}
 					onClose={() => setIsCameraVisiable(false)}
 					onCardAdded={() => fetchUserCards(pagination.currentPage)}
 				/>
 			)}
 
 			<AnimatePresence>
-				{isCardInfoVisible && (
+				{isCardInfoVisible && selectedCard && (
 					<>
 						<motion.div
 							initial={{ opacity: 0 }}
@@ -369,9 +330,8 @@ const MainPage = () => {
 							className='fixed inset-0 bg-black/60 z-20'
 							onClick={handleClosePanel}
 						/>
-
 						<motion.div
-							className='fixed bottom-0 left-0 w-full bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
+							className='fixed bottom-0 left-1/2 -translate-x-1/2 w-full lg:w-1/3 bg-binder rounded-t-2xl pt-10 p-5 shadow-[0_-5px_30px_rgba(0,0,0,0.4)] flex flex-col items-center z-30'
 							drag='y'
 							dragConstraints={{ top: 0, bottom: 500 }}
 							dragSnapToOrigin={true}
@@ -386,19 +346,19 @@ const MainPage = () => {
 							}}
 						>
 							<div className='absolute top-3 h-1 w-12 bg-[#3a3f4b] rounded-full'></div>
-							{selectedCard && (
-								<CardInfo
-									imageUrl={selectedCard.imageUrl}
-									name={selectedCard.name}
-									price={selectedCard.price}
-									handleRefreshPrice={handleRefreshPrice}
-									priceLoading={priceLoading}
-									handleDeleteCard={() => setShowDeleteOverlay(true)}
-									showDeleteOverlay={showDeleteOverlay}
-									onConfirmDelete={() => deleteCard(selectedCard._id)}
-									onCancelDelete={() => setShowDeleteOverlay(false)}
-								/>
-							)}
+							<CardInfo
+								imageUrl={selectedCard.imageUrl}
+								name={selectedCard.name}
+								price={selectedCard.price}
+								handleRefreshPrice={handleRefreshPrice}
+								priceLoading={priceLoading}
+								handleDeleteCard={() => setShowDeleteOverlay(true)}
+								showDeleteOverlay={showDeleteOverlay}
+								onConfirmDelete={() => deleteCard(selectedCard._id)}
+								onCancelDelete={() => setShowDeleteOverlay(false)}
+								shareState={selectedCard.isForTrade}
+								handleShareCard={() => shareCard(selectedCard._id)}
+							/>
 						</motion.div>
 					</>
 				)}

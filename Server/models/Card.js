@@ -5,12 +5,13 @@ const cardSchema = new mongoose.Schema(
 		name: { type: String, required: true },
 		number: { type: String, required: true },
 		imageUrl: { type: String, required: true },
-		price: { type: String },
+		price: { type: String, required: true },
 		ownerId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
 			required: true,
 		},
+		isForTrade: { type: Boolean, default: false },
 	},
 	{ timestamps: true }
 );

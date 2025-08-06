@@ -8,10 +8,12 @@ const CardInfo = ({
 	showDeleteOverlay,
 	onConfirmDelete,
 	onCancelDelete,
+	shareState,
+	handleShareCard,
 }) => {
 	return (
-		<div className='flex flex-col items-center justify-center'>
-			<div className='relative w-3/4 max-w-[250px] rounded-xl mb-6 shadow-xl'>
+		<div className='flex flex-col items-center justify-center text-text'>
+			<div className='relative w-3/4 max-w-[200px] rounded-xl mb-6 shadow-xl'>
 				<img
 					src={imageUrl}
 					alt={name}
@@ -19,18 +21,16 @@ const CardInfo = ({
 				/>
 				{showDeleteOverlay && (
 					<div className='absolute inset-0 bg-negative-transparent flex flex-col items-center justify-center rounded-xl z-10'>
-						<p className='text-xl text-white font-bold mb-4 text-center'>
-							Are you sure?
-						</p>
+						<p className='text-xl  font-bold mb-4 text-center'>Are you sure?</p>
 						<button
 							onClick={onConfirmDelete}
-							className='bg-negative text-white py-2 px-6 rounded-lg mb-2 cursor-pointer'
+							className='bg-negative  py-2 px-6 rounded-lg mb-2 cursor-pointer'
 						>
 							Delete
 						</button>
 						<button
 							onClick={onCancelDelete}
-							className='text-white underline text-sm cursor-pointer'
+							className=' underline text-sm cursor-pointer'
 						>
 							Cancel
 						</button>
@@ -73,6 +73,28 @@ const CardInfo = ({
 					>
 						<path d='M16 2v4h6v2h-2v14H4V8H2V6h6V2h8zm-2 2h-4v2h4V4zm0 4H6v12h12V8h-4zm-5 2h2v8H9v-8zm6 0h-2v8h2v-8z' />
 					</svg>
+				</button>
+			</div>
+			<div className='flex items-center justify-center'>
+				<div className='flex flex-col max-w-3/4 min-h-[32px] justify-center'>
+					<p className='text-sm'>Share for trade</p>
+					<p className='text-[0.6rem] text-filling'>
+						{shareState
+							? 'Card is visiable for others '
+							: 'Card is not visiable for others'}
+					</p>
+				</div>
+				<button
+					onClick={handleShareCard}
+					className={` w-[50px] h-[25px] rounded-2xl cursor-pointer transition-colors duration-300 ${
+						shareState ? 'bg-accept' : 'bg-filling'
+					}`}
+				>
+					<div
+						className={`rounded-full w-[25px] h-[25px] bg-accent1 border-1 border-main transition-transform duration-300 ${
+							shareState ? 'translate-x-full' : ''
+						}`}
+					></div>
 				</button>
 			</div>
 		</div>

@@ -12,6 +12,7 @@
 	--color-accept: #4caf50;
 	--color-negative: #f44336;
 	--color-negative-transparent: #f4433691;
+	--color-second: #23233d;
 }
 @layer base {
 	html {
@@ -106,5 +107,8 @@
 	background-color: var(--color-main) !important;
 }
 .custom-success-toast {
+	background-color: var(--color-main) !important;
+}
+.custom-info-toast {
 	background-color: var(--color-main) !important;
 }

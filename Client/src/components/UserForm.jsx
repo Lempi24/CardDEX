@@ -52,6 +52,7 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 			<div className='flex flex-col gap-4'>
 				<FormInput
 					label={'Trainer name'}
+					placeholder={'Trainer name'}
 					type={'text'}
 					error={errors.userName}
 					{...register('userName', {
@@ -71,6 +72,7 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 			<div className='flex flex-col gap-4'>
 				<FormInput
 					label={'Password'}
+					placeholder={'Password'}
 					type={'password'}
 					{...register('password', {
 						required: 'Password is required',
@@ -90,6 +92,7 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 				<div className='flex flex-col gap-4'>
 					<FormInput
 						label={'Confirm password'}
+						placeholder={'Confirm password'}
 						type={'password'}
 						{...register('confirmPassword', {
 							required: 'Confirm your password',
