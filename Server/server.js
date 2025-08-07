@@ -6,6 +6,7 @@ import { scrapeCard, initializeBrowser, closeBrowser } from './scraper.js';
 
 import authRoute from './routes/UserRoutes.js';
 import cardsRoute from './routes/CardRoutes.js';
+import tradeRoute from './routes/TradeRoutes.js';
 import { connectDB } from './config/database.js';
 import { authenticateToken } from './middleware/auth.js';
 
@@ -21,7 +22,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoute);
 app.use('/api/cards', authenticateToken, cardsRoute);
-
+app.use('/api/trades', authenticateToken, tradeRoute);
 //scrape samej ceny karty
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;

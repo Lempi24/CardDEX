@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CardInfo from '../components/CardInfo';
@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useMediaQuery from '../hooks/useMediaQuery';
 import Header from '../components/Header';
 import Nav from '../components/Nav';
+import { fetchMyCards } from '../services/cardApi';
+
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
@@ -18,7 +20,6 @@ const MainPage = () => {
 	const [priceLoading, setPriceLoading] = useState(false);
 	const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
 	const [userCardsValue, setUserCardsValue] = useState(null);
-	const [isCardShared, setIsCardShared] = useState(false);
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		totalPages: 1,
@@ -29,37 +30,30 @@ const MainPage = () => {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const paginationLimit = isMobile ? 9 : 12;
 
-	const fetchUserCards = async (page = 1) => {
-		setLoading(true);
-		setError(null);
-		try {
-			const token = localStorage.getItem('token');
-			if (!token) {
-				navigate('/');
-				return;
+	const fetchUserCards = useCallback(
+		async (page, limit) => {
+			setLoading(true);
+			setError(null);
+			try {
+				const data = await fetchMyCards({ page: page, paginationLimit: limit });
+				setCards(data.cards);
+				setPagination({
+					currentPage: data.currentPage,
+					totalPages: data.totalPages,
+				});
+			} catch (err) {
+				console.error('Error fetching cards:', err);
+				setError('Failed to load cards. Please log in again.');
+				if (err.response?.status === 401) {
+					localStorage.removeItem('token');
+					navigate('/');
+				}
+			} finally {
+				setLoading(false);
 			}
-			const response = await axios.get(
-				`${
-					import.meta.env.VITE_BACKEND_URL
-				}/api/cards?page=${page}&limit=${paginationLimit}`,
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
-			setCards(response.data.cards);
-			setPagination({
-				currentPage: response.data.currentPage,
-				totalPages: response.data.totalPages,
-			});
-		} catch (err) {
-			console.error('Error fetching cards:', err);
-			setError('Failed to load cards. Please log in again.');
-			if (err.response?.status === 401) {
-				localStorage.removeItem('token');
-				navigate('/');
-			}
-		} finally {
-			setLoading(false);
-		}
-	};
+		},
+		[navigate]
+	);
 
 	const fetchUserCardsValue = async () => {
 		try {
@@ -80,16 +74,18 @@ const MainPage = () => {
 	}, []);
 
 	useEffect(() => {
-		fetchUserCards(1);
-	}, [paginationLimit]);
+		fetchUserCards(pagination.currentPage, paginationLimit);
+	}, [pagination.currentPage, paginationLimit, fetchUserCards]);
 
-	const paginate = (newPage) => {
+	const handlePageChange = (newPage) => {
+		if (newPage > pagination.totalPages || newPage < 1) return;
+
 		if (newPage > pagination.currentPage) {
 			setDirection(1);
 		} else {
 			setDirection(-1);
 		}
-		fetchUserCards(newPage);
+		setPagination((prev) => ({ ...prev, currentPage: newPage }));
 	};
 
 	const scrapeCardPrice = async (cardName, cardNumber) => {
@@ -133,6 +129,7 @@ const MainPage = () => {
 			console.error('Error updating card price:', error);
 		}
 	};
+
 	const shareCard = async (cardId) => {
 		try {
 			const response = await axios.put(
@@ -156,6 +153,7 @@ const MainPage = () => {
 			console.error('Failed to update share status:', error);
 		}
 	};
+
 	const deleteCard = async (cardId) => {
 		try {
 			await axios.delete(
@@ -167,7 +165,7 @@ const MainPage = () => {
 			toast.success('Card deleted successfully!', {
 				className: 'custom-success-toast',
 			});
-			fetchUserCards(pagination.currentPage);
+			fetchUserCards(pagination.currentPage, paginationLimit);
 			fetchUserCardsValue();
 			setShowDeleteOverlay(false);
 			setIsCardInfoVisible(false);
@@ -257,12 +255,12 @@ const MainPage = () => {
 									offset.x < -swipeThreshold &&
 									pagination.currentPage < pagination.totalPages
 								) {
-									paginate(pagination.currentPage + 1);
+									handlePageChange(pagination.currentPage + 1);
 								} else if (
 									offset.x > swipeThreshold &&
 									pagination.currentPage > 1
 								) {
-									paginate(pagination.currentPage - 1);
+									handlePageChange(pagination.currentPage - 1);
 								}
 							}}
 						>
@@ -287,11 +285,10 @@ const MainPage = () => {
 							</div>
 						</motion.div>
 					</AnimatePresence>
-
 					{pagination.totalPages > 1 && !loading && (
 						<div className='flex justify-center items-center gap-4 mt-6'>
 							<button
-								onClick={() => paginate(pagination.currentPage - 1)}
+								onClick={() => handlePageChange(pagination.currentPage - 1)}
 								disabled={pagination.currentPage === 1}
 								className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 							>
@@ -301,7 +298,7 @@ const MainPage = () => {
 								Page {pagination.currentPage} of {pagination.totalPages}
 							</span>
 							<button
-								onClick={() => paginate(pagination.currentPage + 1)}
+								onClick={() => handlePageChange(pagination.currentPage + 1)}
 								disabled={pagination.currentPage === pagination.totalPages}
 								className='bg-accent1 border text-binder border-binder rounded-lg w-10 h-10 disabled:bg-[#3a3f4b] disabled:text-[#a9a9b3] disabled:cursor-not-allowed cursor-pointer'
 							>
@@ -316,7 +313,9 @@ const MainPage = () => {
 				<CameraPanel
 					refreshCardsValue={fetchUserCardsValue}
 					onClose={() => setIsCameraVisiable(false)}
-					onCardAdded={() => fetchUserCards(pagination.currentPage)}
+					onCardAdded={() =>
+						fetchUserCards(pagination.currentPage, paginationLimit)
+					}
 				/>
 			)}
 

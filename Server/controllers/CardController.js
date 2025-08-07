@@ -1,5 +1,4 @@
 import Card from '../models/Card.js';
-import User from '../models/User.js';
 export const addCard = async (req, res) => {
 	const { pokemonName, cardNumber, cardPrice, cardURL } = req.body;
 	try {
@@ -113,8 +112,7 @@ export const fetchCardsForTrade = async (req, res) => {
 			ownerId: req.user._id,
 			isForTrade: true,
 		});
-		const urls = cards.map((card) => card.imageUrl);
-		res.status(200).json({ cardsForTradeURL: urls });
+		res.status(200).json({ cardsForTrade: cards });
 	} catch (error) {
 		console.error('Error fetching user cards for trade:', error);
 		res.status(500).json({ message: 'Failed to fetch user cards for trade' });
@@ -138,6 +136,7 @@ export const fetchTradeSearchResults = async (req, res) => {
 			name: card.name,
 			imageUrl: card.imageUrl,
 			ownerName: card.ownerId.userName,
+			ownerId: card.ownerId._id.toString(),
 		}));
 		res.status(200).json({ cardsForTradeSearchResults: results });
 	} catch (error) {

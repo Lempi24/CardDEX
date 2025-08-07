@@ -13,6 +13,7 @@
 	--color-negative: #f44336;
 	--color-negative-transparent: #f4433691;
 	--color-second: #23233d;
+	--color-pending: #f48b36;
 }
 @layer base {
 	html {
