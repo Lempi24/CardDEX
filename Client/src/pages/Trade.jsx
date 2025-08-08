@@ -1,8 +1,7 @@
 import Nav from '../components/Nav';
 import Header from '../components/Header';
 import FormInput from '../components/FormInput';
-import Pikacz from '../img/Pikacz.png';
-import Kajoger from '../img/Kajoger.png';
+import useAuth from '../hooks/useAuth';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { fetchMyCards } from '../services/cardApi';
@@ -21,6 +20,8 @@ const Trade = ({ logo, handleLogOut }) => {
 	const [showAllCards, setShowAllCards] = useState(false);
 	const [choosenCardForTrade, setChoosenCardForTrade] = useState({});
 	const [userTrades, setUserTrades] = useState([]);
+	const [expandedTradeId, setExpandedTradeId] = useState(null);
+	const loggedInUser = useAuth();
 	//Fetchuje karty które user ma na wymianę
 	const fetchUserTradeCards = async () => {
 		try {
@@ -108,6 +109,19 @@ const Trade = ({ logo, handleLogOut }) => {
 		} catch (error) {
 			console.error('Failed to send trade offer:', error);
 			toast.error('Could not send trade offer. Please try again.');
+		}
+	};
+	const changeTradeOfferStatus = async (tradeId, choice) => {
+		try {
+			await axios.put(
+				`${import.meta.env.VITE_BACKEND_URL}/api/trades/update-trade`,
+				{ tradeId, choice },
+				{
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+				}
+			);
+		} catch (error) {
+			console.error('Error updating trade status:', error);
 		}
 	};
 	const clearTradePanel = () => {
@@ -206,40 +220,117 @@ const Trade = ({ logo, handleLogOut }) => {
 						</div>
 						<div className='h-[2px] w-full bg-filling my-5'></div>
 						{/* Ofetruchy wymiany */}
-						<div className='space-y-10'>
+						<div className='space-y-10 h-full'>
 							<h2>Your trade offers</h2>
-							{userTrades.map((trade) => (
-								<div className='flex items-center flex-wrap justify-center'>
+							{userTrades.map((trade) => {
+								const amIProposing =
+									trade.proposingUser._id === loggedInUser.id;
+								const myCard = amIProposing
+									? trade.offeredCard
+									: trade.requestedCard;
+								const theirCard = amIProposing
+									? trade.requestedCard
+									: trade.offeredCard;
+								const statusStyles = {
+									icon:
+										trade.status === 'accepted'
+											? 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'
+											: 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+									bgColor:
+										trade.status === 'accepted' ? 'bg-accept' : 'bg-negative',
+								};
+								return (
 									<div className='flex items-center justify-around w-full'>
-										<div>
-											<img
-												src={trade.requestedCard.imageUrl}
-												alt=''
-												className='w-[100px] rounded-xl'
-											/>
-										</div>
+										<img
+											src={myCard.imageUrl}
+											alt={myCard.name}
+											className='w-[100px] rounded-xl'
+										/>
 
-										<div className='flex flex-col items-center gap-3'>
-											<button className='w-[50px] h-[50px] bg-pending rounded-full cursor-pointer'>
-												<svg
-													xmlns='http://www.w3.org/2000/svg'
-													viewBox='0 0 24 24'
-													className='fill-main p-2'
+										<div className='relative flex flex-col items-center'>
+											<div className='relative h-[50px] flex justify-center items-center'>
+												<button
+													onClick={() => {
+														changeTradeOfferStatus(trade._id, 'denied');
+														setExpandedTradeId(null);
+													}}
+													className={`absolute w-[50px] h-[50px] bg-negative rounded-full cursor-pointer transition-all duration-300 ease-in-out ${
+														expandedTradeId === trade._id
+															? 'opacity-100 -translate-x-16'
+															: 'opacity-0 translate-x-0 scale-50 pointer-events-none'
+													}`}
 												>
-													<path d='M18 2H6v6h2v2h2v4H8v2H6v6h12v-6h-2v-2h-2v-4h2V8h2V2zm-2 6h-2v2h-4V8H8V4h8v4zm-2 6v2h2v4H8v-4h2v-2h4z' />
-												</svg>
-											</button>
-											<p className='text-sm'>{trade.status}</p>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														viewBox='0 0 24 24'
+														className='fill-main p-3'
+													>
+														<path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z' />
+													</svg>
+												</button>
+
+												<button
+													onClick={() => {
+														setExpandedTradeId(
+															expandedTradeId === trade._id ? null : trade._id
+														);
+													}}
+													disabled={
+														trade.status !== 'pending' ||
+														loggedInUser.id === trade.proposingUser._id
+													}
+													className={`absolute w-[50px] h-[50px] ${
+														trade.status !== 'pending'
+															? statusStyles.bgColor
+															: 'bg-pending'
+													} rounded-full z-10 transition-transform duration-300 hover:scale-110 disabled:cursor-not-allowed`}
+												>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														viewBox='0 0 24 24'
+														className='fill-main p-2'
+													>
+														<path
+															d={
+																trade.status !== 'pending'
+																	? statusStyles.icon
+																	: 'M18 2H6v6h2v2h2v4H8v2H6v6h12v-6h-2v-2h-2v-4h2V8h2V2zm-2 6h-2v2h-4V8H8V4h8v4zm-2 6v2h2v4H8v-4h2v-2h4z'
+															}
+														/>
+													</svg>
+												</button>
+
+												<button
+													onClick={() => {
+														changeTradeOfferStatus(trade._id, 'accepted');
+														setExpandedTradeId(null);
+													}}
+													className={`absolute w-[50px] h-[50px] bg-accept rounded-full cursor-pointer transition-all duration-300 ease-in-out ${
+														expandedTradeId === trade._id
+															? 'opacity-100 translate-x-16'
+															: 'opacity-0 translate-x-0 scale-50 pointer-events-none'
+													}`}
+												>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														viewBox='0 0 24 24'
+														className='fill-main p-3'
+													>
+														<path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z' />
+													</svg>
+												</button>
+											</div>
+											<p className='text-sm mt-2 capitalize'>{trade.status}</p>
 										</div>
 
 										<img
-											src={trade.offeredCard.imageUrl}
-											alt=''
+											src={theirCard.imageUrl}
+											alt={theirCard.name}
 											className='w-[100px] rounded-xl'
 										/>
 									</div>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					</div>
 					{/* Panel wymiany */}

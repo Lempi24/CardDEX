@@ -42,3 +42,19 @@ export const fetchTrade = async (req, res) => {
 		res.status(500).json({ message: 'Server error while fetching trades.' });
 	}
 };
+export const updateTrade = async (req, res) => {
+	const { tradeId, choice } = req.body;
+
+	try {
+		const trade = await Trade.findOne({
+			_id: tradeId,
+		});
+		trade.status = choice;
+		await trade.save();
+
+		res.status(200).json({ message: 'Trade status updated successfully' });
+	} catch (error) {
+		console.error('Error updating trade status:', error);
+		res.status(500).json({ message: 'Failed to update trade status' });
+	}
+};
