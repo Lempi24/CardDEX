@@ -79,7 +79,7 @@ const Trade = ({ logo, handleLogOut }) => {
 	};
 	const handleAddCardForTrade = async () => {
 		try {
-			const data = await fetchMyCards({ limit: 200 });
+			const data = await fetchMyCards({ limit: 0 });
 			setCards(data.cards);
 		} catch (error) {
 			console.log('Wystąpił taki błąd', error);
@@ -186,7 +186,7 @@ const Trade = ({ logo, handleLogOut }) => {
 							))}
 						</div>
 						<div className='h-[2px] w-full bg-filling mb-5'></div>
-						<div className='flex flex-col gap-3 max-h-1/3 overflow-y-auto'>
+						<div className='flex flex-col gap-3 max-h-1/3 overflow-y-auto pokeball-scrollbar pr-2'>
 							<h2>Your trade cards</h2>
 							<div className='flex flex-wrap items-center justify-between gap-3'>
 								{cardsForTrade <= 0 && (
@@ -255,7 +255,7 @@ const Trade = ({ logo, handleLogOut }) => {
 										<img
 											src={tradeCardInfo.url}
 											alt=''
-											className='w-[150px] lg:w-[250px] rounded-xl'
+											className='w-[150px] rounded-xl'
 										/>
 									</div>
 									<div className='relative flex flex-col items-center gap-5 p-10 h-[350px] overflow-y-auto'>
@@ -268,7 +268,7 @@ const Trade = ({ logo, handleLogOut }) => {
 														addCardForTrade: true,
 													}))
 												}
-												className=' flex flex-col items-center justify-center w-[150px] h-full border-2 border-dashed border-filling'
+												className=' flex flex-col items-center justify-center w-[150px] h-full border-2 border-dashed border-filling cursor-pointer'
 											>
 												<p>+</p>
 												<p>Add your card</p>
@@ -278,7 +278,7 @@ const Trade = ({ logo, handleLogOut }) => {
 											<img
 												src={choosenCardForTrade.imageUrl}
 												alt=''
-												className='w-[150px] lg:w-[250px] rounded-xl'
+												className='w-[150px]  rounded-xl'
 											/>
 										)}
 									</div>
@@ -309,7 +309,7 @@ const Trade = ({ logo, handleLogOut }) => {
 							<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9/10 h-3/4 bg-main p-5 z-1000 lg:w-1/2 lg:h-3/4'>
 								<h2 className='text-sm w-full'>Pick card to offer</h2>
 								<div className='flex flex-col items-center p-10 gap-4'>
-									<div className='w-full flex items-center justify-between'>
+									<div className='w-full lg:w-auto lg:gap-3 lg:ml-auto flex items-center justify-between'>
 										<button
 											onClick={() => setShowAllCards(false)}
 											className={`${
@@ -337,12 +337,12 @@ const Trade = ({ logo, handleLogOut }) => {
 										onChange={(e) => setSearchInput(e.target.value)}
 									/>
 									<p className='text-sm'>Search doesn't work yet lmao</p>
-									<div className='flex gap-4 w-full overflow-y-auto p-4'>
+									<div className='flex lg:flex-wrap lg:items-center lg:justify-center gap-4 w-full lg:h-[300px] overflow-y-auto p-4 pokeball-scrollbar'>
 										{(showAllCards ? cards : cardsForTrade).map((card) => (
 											<button
 												key={card._id}
 												onClick={() => addCardToTrade(card)}
-												className='rounded-xl shrink-0 w-[100px] overflow-hidden ring-offset-main ring-offset-2 focus:outline-none focus:ring-2 focus:ring-accent1'
+												className='rounded-xl shrink-0 w-[100px] overflow-hidden ring-offset-main ring-offset-2 focus:outline-none focus:ring-2 focus:ring-accent1 cursor-pointer'
 											>
 												<img
 													src={card.imageUrl}
@@ -352,7 +352,7 @@ const Trade = ({ logo, handleLogOut }) => {
 											</button>
 										))}
 									</div>
-									<div className='w-full flex items-center justify-between'>
+									<div className='flex w-full'>
 										<button
 											onClick={() =>
 												setIsTradePanelVisiable((prev) => ({
@@ -360,7 +360,7 @@ const Trade = ({ logo, handleLogOut }) => {
 													addCardForTrade: false,
 												}))
 											}
-											className='bg-second text-text p-2 cursor-pointer rounded-xl'
+											className='bg-second text-text p-2 cursor-pointer rounded-xl ml-auto'
 										>
 											Close
 										</button>

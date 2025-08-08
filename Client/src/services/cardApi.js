@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-export const fetchMyCards = async ({ page, paginationLimit }) => {
+export const fetchMyCards = async ({ page, limit }) => {
 	try {
 		const token = localStorage.getItem('token');
 		const params = {
 			page: page,
-			limit: paginationLimit,
+			limit: limit,
 		};
 
 		const response = await axios.get(

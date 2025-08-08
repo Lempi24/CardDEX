@@ -19,20 +19,21 @@ export const addCard = async (req, res) => {
 export const getUserCards = async (req, res) => {
 	try {
 		const page = parseInt(req.query.page) || 1;
-		const limit = parseInt(req.query.limit) || 9;
-		const skip = (page - 1) * limit;
-
+		const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 9;
 		const totalCards = await Card.countDocuments({ ownerId: req.user._id });
-		const cards = await Card.find({ ownerId: req.user._id })
-			.sort({ createdAt: -1 })
-			.skip(skip)
-			.limit(limit);
-
+		let cardsQuery = Card.find({ ownerId: req.user._id }).sort({
+			createdAt: -1,
+		});
+		if (limit > 0) {
+			const skip = (page - 1) * limit;
+			cardsQuery = cardsQuery.skip(skip).limit(limit);
+		}
+		const cards = await cardsQuery;
 		res.status(200).json({
 			message: 'Cards retrieved successfully',
 			cards,
 			currentPage: page,
-			totalPages: Math.ceil(totalCards / limit),
+			totalPages: limit > 0 ? Math.ceil(totalCards / limit) : 1,
 		});
 	} catch (error) {
 		console.error('Error getting user cards:', error);

@@ -113,3 +113,14 @@
 .custom-info-toast {
 	background-color: var(--color-main) !important;
 }
+.pokeball-scrollbar::-webkit-scrollbar {
+	width: 8px;
+}
+.pokeball-scrollbar::-webkit-scrollbar-track {
+	background: var(--color-filling);
+	border-radius: 5px;
+}
+.pokeball-scrollbar::-webkit-scrollbar-thumb {
+	background-color: var(--color-accent1);
+	border-radius: 5px;
+}

@@ -35,7 +35,7 @@ const MainPage = () => {
 			setLoading(true);
 			setError(null);
 			try {
-				const data = await fetchMyCards({ page: page, paginationLimit: limit });
+				const data = await fetchMyCards({ page: page, limit: limit });
 				setCards(data.cards);
 				setPagination({
 					currentPage: data.currentPage,

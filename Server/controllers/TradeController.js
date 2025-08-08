@@ -19,7 +19,7 @@ export const createTrade = async (req, res) => {
 			.json({ message: 'Trade offer created successfully!', trade: newTrade });
 	} catch (error) {
 		console.log(error);
-		res.status(500).json({ message: 'Coś jebło' });
+		res.status(500).json({ message: 'Error while creating trade' });
 	}
 };
 

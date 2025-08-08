@@ -126,7 +126,6 @@ const CameraPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
 		for (let i = 0; i < apiPokemonNames.length; i++) {
 			const result = fuse.search(apiPokemonNames[i]);
 			if (result.length > 0) {
-				console.log(result);
 				setPokemonName(apiPokemonNames[i]);
 				setIsPokemonFound(true);
 				setScanStatus('');
