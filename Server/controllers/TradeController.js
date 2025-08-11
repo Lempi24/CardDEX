@@ -1,9 +1,8 @@
 import Trade from '../models/Trade.js';
-
+import Conversation from '../models/Conversation.js';
 export const createTrade = async (req, res) => {
 	try {
-		const { proposingUser, receivingUser, offeredCard, requestedCard } =
-			req.body;
+		const { receivingUser, offeredCard, requestedCard } = req.body;
 
 		const newTrade = new Trade({
 			proposingUser: req.user._id,
@@ -30,7 +29,7 @@ export const fetchTrade = async (req, res) => {
 		const trades = await Trade.find({
 			$or: [{ proposingUser: userId }, { receivingUser: userId }],
 		})
-			.populate('proposingUser', 'username')
+			.populate('proposingUser', 'userName')
 			.populate('receivingUser', 'userName')
 			.populate('offeredCard', 'imageUrl')
 			.populate('requestedCard', 'imageUrl')
@@ -44,14 +43,21 @@ export const fetchTrade = async (req, res) => {
 };
 export const updateTrade = async (req, res) => {
 	const { tradeId, choice } = req.body;
-
+	let newConversation;
 	try {
 		const trade = await Trade.findOne({
 			_id: tradeId,
 		});
 		trade.status = choice;
 		await trade.save();
-
+		if (choice === 'accepted') {
+			newConversation = new Conversation({
+				relatedTrade: trade._id,
+				participants: [trade.proposingUser, trade.receivingUser],
+				messagges: [],
+			});
+		}
+		await newConversation.save();
 		res.status(200).json({ message: 'Trade status updated successfully' });
 	} catch (error) {
 		console.error('Error updating trade status:', error);

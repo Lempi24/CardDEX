@@ -3,26 +3,37 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import mongoose from 'mongoose';
 import { scrapeCard, initializeBrowser, closeBrowser } from './scraper.js';
-
 import authRoute from './routes/UserRoutes.js';
 import cardsRoute from './routes/CardRoutes.js';
 import tradeRoute from './routes/TradeRoutes.js';
+import conversationRoute from './routes/ConversationRoutes.js';
 import { connectDB } from './config/database.js';
 import { authenticateToken } from './middleware/auth.js';
-
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { timeStamp } from 'console';
 const app = express();
-
+const httpServer = createServer(app);
+const userSocketMap = new Map();
 app.use(
 	cors({
 		origin: '*',
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	})
 );
+const io = new Server(httpServer, {
+	cors: {
+		origin: '*',
+		methods: ['GET', 'POST'],
+	},
+});
+
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
 app.use('/api/cards', authenticateToken, cardsRoute);
 app.use('/api/trades', authenticateToken, tradeRoute);
+app.use('/api/conversation', authenticateToken, conversationRoute);
 //scrape samej ceny karty
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;
@@ -103,15 +114,41 @@ const startServer = async () => {
 	try {
 		await connectDB();
 		await initializeBrowser();
-		app.listen(PORT, '0.0.0.0', () => {
-			console.log(` Backend działa na http://localhost:${PORT}`);
+		httpServer.listen(PORT, '0.0.0.0', () => {
+			console.log(`Backend działa na http://localhost:${PORT}`);
 		});
 	} catch (error) {
 		console.error(' Nie udało się uruchomić serwera:', error);
 		process.exit(1);
 	}
 };
+io.on('connection', (socket) => {
+	console.log('User connected: ', socket.id);
+	socket.on('authenticate', (token) => {
+		userSocketMap.set(token, socket.id);
+	});
+	socket.on('join_room', (roomId) => {
+		socket.join(roomId);
+	});
+	socket.on('leave_room', (roomId) => {
+		socket.leave(roomId);
+	});
+	socket.on('send_message', (data) => {
+		const senderId = data.senderId;
 
+		const messageObject = {
+			content: data.message,
+			senderId: senderId,
+			timeStamp: new Date(),
+		};
+
+		io.to(data.room).emit('receive_message', messageObject);
+	});
+
+	socket.on('disconnect', () => {
+		console.log('User disconnected: ', socket.io);
+	});
+});
 const gracefulShutdown = async (signal) => {
 	console.log(`\n Otrzymano sygnał ${signal}. Rozpoczynam zamykanie...`);
 
