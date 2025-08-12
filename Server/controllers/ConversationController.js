@@ -17,3 +17,15 @@ export const fetchUserConversations = async (req, res) => {
 			.json({ message: 'Server error while fetching conversations.' });
 	}
 };
+export const fetchMessages = async (req, res) => {
+	try {
+		const { room } = req.query;
+		const conversation = await Conversation.findById(room);
+		const messageArray = conversation.messages;
+
+		res.status(200).json({ messagesArray: messageArray });
+	} catch (error) {
+		console.error("Error fetching user's messages:", error);
+		res.status(500).json({ message: 'Server error while fetching messages.' });
+	}
+};

@@ -97,7 +97,7 @@ const Chat = ({ handleLogOut }) => {
 						isOnline={true}
 						socket={socket}
 						room={activeConversationId}
-						senderId={loggedInUser.id}
+						sender={loggedInUser.id}
 					/>
 				)}
 			</div>

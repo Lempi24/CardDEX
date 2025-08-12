@@ -11,7 +11,7 @@ import { connectDB } from './config/database.js';
 import { authenticateToken } from './middleware/auth.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { timeStamp } from 'console';
+import Conversation from './models/Conversation.js';
 const app = express();
 const httpServer = createServer(app);
 const userSocketMap = new Map();
@@ -133,16 +133,26 @@ io.on('connection', (socket) => {
 	socket.on('leave_room', (roomId) => {
 		socket.leave(roomId);
 	});
-	socket.on('send_message', (data) => {
-		const senderId = data.senderId;
+	socket.on('send_message', async (data) => {
+		try {
+			const conversation = await Conversation.findById(data.room);
+			const sender = data.sender;
 
-		const messageObject = {
-			content: data.message,
-			senderId: senderId,
-			timeStamp: new Date(),
-		};
-
-		io.to(data.room).emit('receive_message', messageObject);
+			const messageObject = {
+				content: data.message,
+				sender: sender,
+			};
+			conversation.messages.push(messageObject);
+			await conversation.save();
+			const savedMessage =
+				conversation.messages[conversation.messages.length - 1];
+			io.to(data.room).emit('receive_message', savedMessage);
+		} catch (error) {
+			console.error(
+				`Error saving or broadcasting message for room ${data.room}:`,
+				error
+			);
+		}
 	});
 
 	socket.on('disconnect', () => {

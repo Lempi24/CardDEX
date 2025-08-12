@@ -1,7 +1,8 @@
 import Avatar from '../img/empty-avatar.webp';
 import ChatMessage from '../components/ChatMessage';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useAuth from '../hooks/useAuth';
+import axios from 'axios';
 
 const ChatActive = ({
 	closeActiveConversation,
@@ -9,18 +10,38 @@ const ChatActive = ({
 	isOnline,
 	socket,
 	room,
-	senderId,
+	sender,
 }) => {
 	const [messages, setMessages] = useState([]);
 	const [inputValue, setInputValue] = useState('');
 	const loggedInUser = useAuth();
+	const messagesEndRef = useRef(null);
+	const scrollContainerRef = useRef(null);
+	const isUserNearBottom = useRef(true); // śledzenie czy user jest przy dole
 
 	const sendMessage = () => {
 		if (inputValue.trim() !== '') {
-			socket.emit('send_message', { message: inputValue, room, senderId });
+			socket.emit('send_message', { message: inputValue, room, sender });
 			setInputValue('');
 		}
 	};
+
+	const fetchMessages = async (room) => {
+		try {
+			const token = localStorage.getItem('token');
+			const response = await axios.get(
+				`${import.meta.env.VITE_BACKEND_URL}/api/conversation/fetch-messages`,
+				{ params: { room }, headers: { Authorization: `Bearer ${token}` } }
+			);
+			setMessages(response.data.messagesArray);
+		} catch (error) {
+			console.error('Error fetching messages:', error);
+		}
+	};
+
+	useEffect(() => {
+		fetchMessages(room);
+	}, []);
 
 	useEffect(() => {
 		if (!socket || !room) return;
@@ -35,9 +56,25 @@ const ChatActive = ({
 		};
 	}, [socket, room]);
 
+	// Obsługa przewijania – sprawdzamy czy user jest przy dole
+	const handleScroll = () => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+		const threshold = 100; // piksele od dołu
+		const position =
+			container.scrollHeight - container.scrollTop - container.clientHeight;
+		isUserNearBottom.current = position < threshold;
+	};
+
+	// Auto-scroll tylko jeśli user jest blisko dołu
+	useEffect(() => {
+		if (isUserNearBottom.current) {
+			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [messages]);
+
 	return (
-		<main className='max-w-[700px] mx-auto h-screen flex flex-col'>
-			{/* Header - stały na górze */}
+		<main className='lg:relative lg:left-1/2 lg:-translate-x-1/2 max-w-[700px] h-[680px] flex flex-col'>
 			<div className='flex items-center border-b border-filling w-full px-2 py-2 gap-3 flex-shrink-0'>
 				<button onClick={closeActiveConversation}>
 					<svg
@@ -61,10 +98,13 @@ const ChatActive = ({
 				</div>
 			</div>
 
-			{/* Container dla wiadomości - scrollowalny */}
-			<div className='flex-1 overflow-y-auto pb-24'>
+			<div
+				className='overflow-y-auto mb-4 flex-1'
+				ref={scrollContainerRef}
+				onScroll={handleScroll}
+			>
 				{messages.map((message) => {
-					const isSender = message.senderId === loggedInUser.id;
+					const isSender = message.sender === loggedInUser.id;
 					return (
 						<ChatMessage
 							key={message._id || message.timeStamp}
@@ -74,10 +114,10 @@ const ChatActive = ({
 						/>
 					);
 				})}
+				<div ref={messagesEndRef} />
 			</div>
 
-			{/* Input - stały na dole */}
-			<div className='fixed left-1/2 -translate-x-1/2 bottom-20 w-[90%] max-w-lg z-10'>
+			<div className='flex-shrink-0'>
 				<div className='relative flex items-center bg-second rounded-xl p-2 shadow-lg border border-filling'>
 					<input
 						value={inputValue}
