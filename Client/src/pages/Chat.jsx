@@ -15,6 +15,7 @@ const Chat = ({ handleLogOut }) => {
 	const [conversations, setConversations] = useState([]);
 	const [activeConversationId, setActiveConversationId] = useState(null);
 	const [socket, setSocket] = useState(null);
+	const [onlineUsers, setOnlineUsers] = useState(new Set());
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -32,7 +33,10 @@ const Chat = ({ handleLogOut }) => {
 			console.error('Error fetching conversations:', error);
 		}
 	};
-
+	const closeActiveConversation = () => {
+		setActiveConversationId(null);
+		fetchAllConversations();
+	};
 	useEffect(() => {
 		fetchAllConversations();
 		const newSocket = io(import.meta.env.VITE_BACKEND_URL);
@@ -40,8 +44,24 @@ const Chat = ({ handleLogOut }) => {
 		newSocket.on('connect', () => {
 			console.log('User connected to IO:', newSocket.id);
 		});
+		newSocket.on('online_users_list', (userArray) => {
+			setOnlineUsers(new Set(userArray));
+		});
+		newSocket.on('user_online', (userId) => {
+			setOnlineUsers((prev) => new Set(prev).add(userId));
+		});
+		newSocket.on('user_offline', (userId) => {
+			setOnlineUsers((prev) => {
+				const newUsers = new Set(prev);
+				newUsers.delete(userId);
+				return newUsers;
+			});
+		});
 		return () => {
 			newSocket.disconnect();
+			newSocket.off('online_users_list');
+			newSocket.off('user_online');
+			newSocket.off('user_offline');
 		};
 	}, []);
 	useEffect(() => {
@@ -53,12 +73,16 @@ const Chat = ({ handleLogOut }) => {
 		(conversation) => conversation._id === activeConversationId
 	);
 	let otherUserName = '';
+	let isOtherUserOnline = false;
 	if (activeConversation) {
-		otherUserName =
-			activeConversation.participants[0]._id === loggedInUser.id
-				? activeConversation.participants[1].userName
-				: activeConversation.participants[0].userName;
+		const otherUser = activeConversation.participants.find(
+			(p) => p._id !== loggedInUser.id
+		);
+
+		otherUserName = otherUser.userName;
+		isOtherUserOnline = onlineUsers.has(otherUser._id);
 	}
+
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text pb-[65px]'>
@@ -70,20 +94,38 @@ const Chat = ({ handleLogOut }) => {
 						</h2>
 						<div className=' px-4 mt-4 space-y-5'>
 							{conversations.map((conversation) => {
+								const otherParticipant = conversation.participants.find(
+									(p) => p._id !== loggedInUser.id
+								);
+								const isUserOnline = otherParticipant
+									? onlineUsers.has(otherParticipant._id)
+									: false;
 								const conversationUserName =
 									conversation.participants[0]._id === loggedInUser.id
 										? conversation.participants[1].userName
 										: conversation.participants[0].userName;
+								const lastMsgTime = conversation.messages.at(-1)?.createdAt
+									? new Date(
+											conversation.messages.at(-1).createdAt
+									  ).toLocaleTimeString([], {
+											hour: '2-digit',
+											minute: '2-digit',
+									  })
+									: '';
 								return (
 									<UserChats
 										key={conversation._id}
 										name={conversationUserName}
-										lastMessage={'Hey, is that moltres still available?'}
-										lastMessageTime={'10:42'}
+										lastMessage={
+											conversation.messages[conversation.messages.length - 1]
+												?.content || 'No messages yet'
+										}
+										lastMessageTime={lastMsgTime}
 										notSeenMessages={'2'}
 										fetchActiveConversationId={() =>
 											setActiveConversationId(conversation._id)
 										}
+										isOnline={isUserOnline}
 									/>
 								);
 							})}
@@ -92,9 +134,9 @@ const Chat = ({ handleLogOut }) => {
 				)}
 				{activeConversationId && (
 					<ChatActive
-						closeActiveConversation={() => setActiveConversationId(null)}
+						closeActiveConversation={() => closeActiveConversation()}
 						name={otherUserName}
-						isOnline={true}
+						isOnline={isOtherUserOnline}
 						socket={socket}
 						room={activeConversationId}
 						sender={loggedInUser.id}

@@ -95,7 +95,6 @@ const ChatActive = ({
 					</p>
 				</div>
 			</div>
-
 			<div
 				className='overflow-y-auto mb-4 flex-1'
 				ref={scrollContainerRef}

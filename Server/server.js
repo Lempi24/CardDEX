@@ -15,6 +15,7 @@ import Conversation from './models/Conversation.js';
 const app = express();
 const httpServer = createServer(app);
 const userSocketMap = new Map();
+let onlineUsers = new Set();
 app.use(
 	cors({
 		origin: '*',
@@ -123,9 +124,11 @@ const startServer = async () => {
 	}
 };
 io.on('connection', (socket) => {
-	console.log('User connected: ', socket.id);
 	socket.on('authenticate', (token) => {
 		userSocketMap.set(token, socket.id);
+		onlineUsers.add(token);
+		socket.emit('online_users_list', Array.from(onlineUsers));
+		socket.broadcast.emit('user_online', token);
 	});
 	socket.on('join_room', (roomId) => {
 		socket.join(roomId);
@@ -156,7 +159,19 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('disconnect', () => {
-		console.log('User disconnected: ', socket.io);
+		let disconnectedUserId = null;
+		for (const [userId, socketId] of userSocketMap.entries()) {
+			if (socketId === socket.id) {
+				disconnectedUserId = userId;
+				break;
+			}
+		}
+		if (disconnectedUserId) {
+			onlineUsers.delete(disconnectedUserId);
+
+			io.emit('user_offline', disconnectedUserId);
+		}
+		console.log('User disconnected: ', socket.id);
 	});
 });
 const gracefulShutdown = async (signal) => {
