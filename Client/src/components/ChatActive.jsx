@@ -17,7 +17,7 @@ const ChatActive = ({
 	const loggedInUser = useAuth();
 	const messagesEndRef = useRef(null);
 	const scrollContainerRef = useRef(null);
-	const isUserNearBottom = useRef(true); // śledzenie czy user jest przy dole
+	const isUserNearBottom = useRef(true);
 
 	const sendMessage = () => {
 		if (inputValue.trim() !== '') {
@@ -56,17 +56,15 @@ const ChatActive = ({
 		};
 	}, [socket, room]);
 
-	// Obsługa przewijania – sprawdzamy czy user jest przy dole
 	const handleScroll = () => {
 		const container = scrollContainerRef.current;
 		if (!container) return;
-		const threshold = 100; // piksele od dołu
+		const threshold = 100;
 		const position =
 			container.scrollHeight - container.scrollTop - container.clientHeight;
 		isUserNearBottom.current = position < threshold;
 	};
 
-	// Auto-scroll tylko jeśli user jest blisko dołu
 	useEffect(() => {
 		if (isUserNearBottom.current) {
 			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

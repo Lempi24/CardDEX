@@ -13,7 +13,7 @@ import { fetchMyCards } from '../services/cardApi';
 const MainPage = () => {
 	const [isCardInfoVisible, setIsCardInfoVisible] = useState(false);
 	const [selectedCard, setSelectedCard] = useState(null);
-	const [isCameraVisiable, setIsCameraVisiable] = useState(false);
+	const [isCardPanelVisiable, setIsCardPanelVisiable] = useState(false);
 	const [cards, setCards] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -183,7 +183,7 @@ const MainPage = () => {
 	};
 
 	const handleClosePanel = () => setIsCardInfoVisible(false);
-	const handleAddCard = () => setIsCameraVisiable(true);
+	const handleAddCard = () => setIsCardPanelVisiable(true);
 	const handleLogOut = () => {
 		localStorage.removeItem('token');
 		navigate('/');
@@ -309,10 +309,10 @@ const MainPage = () => {
 				</main>
 			</div>
 			<Nav handleAddCard={handleAddCard} />
-			{isCameraVisiable && (
+			{isCardPanelVisiable && (
 				<CameraPanel
 					refreshCardsValue={fetchUserCardsValue}
-					onClose={() => setIsCameraVisiable(false)}
+					onClose={() => setIsCardPanelVisiable(false)}
 					onCardAdded={() =>
 						fetchUserCards(pagination.currentPage, paginationLimit)
 					}
