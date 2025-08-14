@@ -136,6 +136,16 @@ io.on('connection', (socket) => {
 	socket.on('leave_room', (roomId) => {
 		socket.leave(roomId);
 	});
+	socket.on('user_typing', (data) => {
+		socket.broadcast
+			.to(data.room)
+			.emit('receive_user_typing', { isTyping: true });
+	});
+	socket.on('user_stopped_typing', (data) => {
+		socket.broadcast
+			.to(data.room)
+			.emit('receive_user_typing', { isTyping: false });
+	});
 	socket.on('send_message', async (data) => {
 		try {
 			const conversation = await Conversation.findById(data.room);

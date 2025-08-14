@@ -18,6 +18,7 @@ const ChatActive = ({
 	const messagesEndRef = useRef(null);
 	const scrollContainerRef = useRef(null);
 	const isUserNearBottom = useRef(true);
+	const [isTyping, setIsTyping] = useState(false);
 
 	const sendMessage = () => {
 		if (inputValue.trim() !== '') {
@@ -25,7 +26,24 @@ const ChatActive = ({
 			setInputValue('');
 		}
 	};
+	useEffect(() => {
+		if (inputValue) {
+			socket.emit('user_typing', { room });
+		} else {
+			socket.emit('user_stopped_typing', { room });
+		}
+	}, [inputValue, room]);
+	useEffect(() => {
+		const handleReceiveTyping = (data) => {
+			setIsTyping(data.isTyping);
+		};
 
+		socket.on('receive_user_typing', handleReceiveTyping);
+
+		return () => {
+			socket.off('receive_user_typing', handleReceiveTyping);
+		};
+	}, []);
 	const fetchMessages = async (room) => {
 		try {
 			const token = localStorage.getItem('token');
@@ -111,6 +129,7 @@ const ChatActive = ({
 						/>
 					);
 				})}
+				{isTyping && <p className='text-[0.6rem] mt-5'>is typing...</p>}
 				<div ref={messagesEndRef} />
 			</div>
 
