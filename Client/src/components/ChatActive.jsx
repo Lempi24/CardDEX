@@ -3,7 +3,8 @@ import ChatMessage from '../components/ChatMessage';
 import { useEffect, useRef, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import axios from 'axios';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import TypingIndicator from './TypingIndicator';
 const ChatActive = ({
 	closeActiveConversation,
 	name,
@@ -34,14 +35,13 @@ const ChatActive = ({
 		}
 	}, [inputValue, room]);
 	useEffect(() => {
-		const handleReceiveTyping = (data) => {
+		const handleIsTyping = (data) => {
 			setIsTyping(data.isTyping);
 		};
-
-		socket.on('receive_user_typing', handleReceiveTyping);
+		socket.on('receive_user_typing', handleIsTyping);
 
 		return () => {
-			socket.off('receive_user_typing', handleReceiveTyping);
+			socket.off('receive_user_typing', handleIsTyping);
 		};
 	}, []);
 	const fetchMessages = async (room) => {
@@ -129,7 +129,18 @@ const ChatActive = ({
 						/>
 					);
 				})}
-				{isTyping && <p className='text-[0.6rem] mt-5'>is typing...</p>}
+				<AnimatePresence>
+					{isTyping && (
+						<motion.div
+							initial={{ opacity: 0, y: -10 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: 10 }}
+							transition={{ duration: 0.3 }}
+						>
+							<TypingIndicator />
+						</motion.div>
+					)}
+				</AnimatePresence>
 				<div ref={messagesEndRef} />
 			</div>
 
