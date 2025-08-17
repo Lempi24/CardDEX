@@ -90,7 +90,7 @@ const ChatActive = ({
 	}, [messages]);
 
 	return (
-		<main className='lg:relative lg:left-1/2 lg:-translate-x-1/2 max-w-[700px] h-[680px] flex flex-col'>
+		<main className='lg:relative lg:left-1/2 lg:-translate-x-1/2 lg:max-w-[700px] max-h-screen  flex flex-col'>
 			<div className='flex items-center border-b border-filling w-full px-2 py-2 gap-3 flex-shrink-0'>
 				<button onClick={closeActiveConversation}>
 					<svg
@@ -113,39 +113,38 @@ const ChatActive = ({
 					</p>
 				</div>
 			</div>
-			<div
-				className='overflow-y-auto mb-4 flex-1'
-				ref={scrollContainerRef}
-				onScroll={handleScroll}
-			>
-				{messages.map((message) => {
-					const isSender = message.sender === loggedInUser.id;
-					return (
-						<ChatMessage
-							key={message._id || message.timeStamp}
-							message={message.content}
-							avatar={Avatar}
-							isSenders={isSender}
-						/>
-					);
-				})}
-				<AnimatePresence>
-					{isTyping && (
-						<motion.div
-							initial={{ opacity: 0, y: -10 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: 10 }}
-							transition={{ duration: 0.3 }}
-						>
-							<TypingIndicator />
-						</motion.div>
-					)}
-				</AnimatePresence>
-				<div ref={messagesEndRef} />
-			</div>
-
-			<div className='flex-shrink-0 mb-10'>
-				<div className='relative flex items-center bg-second rounded-xl p-2 shadow-lg border border-filling'>
+			<div className='h-[75vh] flex flex-col'>
+				<div
+					className='h-full pb-4 overflow-y-auto'
+					ref={scrollContainerRef}
+					onScroll={handleScroll}
+				>
+					{messages.map((message) => {
+						const isSender = message.sender === loggedInUser.id;
+						return (
+							<ChatMessage
+								key={message._id || message.timeStamp}
+								message={message.content}
+								avatar={Avatar}
+								isSenders={isSender}
+							/>
+						);
+					})}
+					<AnimatePresence>
+						{isTyping && (
+							<motion.div
+								initial={{ opacity: 0, y: -10 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: 10 }}
+								transition={{ duration: 0.3 }}
+							>
+								<TypingIndicator />
+							</motion.div>
+						)}
+					</AnimatePresence>
+					<div ref={messagesEndRef} />
+				</div>
+				<div className='flex items-center bg-second rounded-xl p-2 shadow-lg border border-filling'>
 					<input
 						value={inputValue}
 						onChange={(event) => setInputValue(event.target.value)}
