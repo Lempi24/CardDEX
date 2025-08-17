@@ -144,7 +144,7 @@ const ChatActive = ({
 				<div ref={messagesEndRef} />
 			</div>
 
-			<div className='flex-shrink-0'>
+			<div className='flex-shrink-0 mb-10'>
 				<div className='relative flex items-center bg-second rounded-xl p-2 shadow-lg border border-filling'>
 					<input
 						value={inputValue}
