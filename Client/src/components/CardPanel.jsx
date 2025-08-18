@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-const CameraPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
+const CardPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
 	const [pokemonName, setPokemonName] = useState('');
 
 	const [cardNumber, setCardNumber] = useState('');
@@ -262,4 +262,4 @@ const CameraPanel = ({ onClose, onCardAdded, refreshCardsValue }) => {
 	);
 };
 
-export default CameraPanel;
+export default CardPanel;

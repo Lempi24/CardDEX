@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CardInfo from '../components/CardInfo';
-import CameraPanel from '../components/CameraPanel';
+import CardPanel from '../components/CardPanel';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import useMediaQuery from '../hooks/useMediaQuery';
@@ -172,7 +172,9 @@ const MainPage = () => {
 			setSelectedCard(null);
 		} catch (error) {
 			console.error('Error deleting card:', error);
-			toast.error('Failed to delete card');
+			toast.error('Failed to delete card', {
+				className: 'custom-error-toast',
+			});
 		}
 	};
 
@@ -202,7 +204,9 @@ const MainPage = () => {
 			});
 			fetchUserCardsValue();
 		} else {
-			toast.error('Something went wrong, try again');
+			toast.error('Something went wrong, try again', {
+				className: 'custom-error-toast',
+			});
 		}
 	};
 
@@ -310,7 +314,7 @@ const MainPage = () => {
 			</div>
 			<Nav handleAddCard={handleAddCard} />
 			{isCardPanelVisiable && (
-				<CameraPanel
+				<CardPanel
 					refreshCardsValue={fetchUserCardsValue}
 					onClose={() => setIsCardPanelVisiable(false)}
 					onCardAdded={() =>

@@ -25,7 +25,9 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 				}
 			} catch (error) {
 				const msg = error.response?.data?.message || 'Login failed. Try again.';
-				toast.error(msg);
+				toast.error(msg, {
+					className: 'custom-error-toast',
+				});
 			}
 		} else {
 			try {
@@ -39,7 +41,9 @@ const UserForm = ({ isLoging, pText, spanInfo, btnText, destination }) => {
 			} catch (error) {
 				const msg =
 					error.response?.data?.message || 'Registration failed. Try again.';
-				toast.error(msg);
+				toast.error(msg, {
+					className: 'custom-error-toast',
+				});
 			}
 		}
 	};

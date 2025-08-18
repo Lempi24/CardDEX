@@ -21,6 +21,7 @@ const Trade = ({ logo, handleLogOut }) => {
 	const [choosenCardForTrade, setChoosenCardForTrade] = useState({});
 	const [userTrades, setUserTrades] = useState([]);
 	const [expandedTradeId, setExpandedTradeId] = useState(null);
+	const [forTradeFilter, setForTradeFilter] = useState('');
 	const loggedInUser = useAuth();
 	//Fetchuje karty które user ma na wymianę
 	const fetchUserTradeCards = async () => {
@@ -35,6 +36,8 @@ const Trade = ({ logo, handleLogOut }) => {
 			console.error('Error fetching user cards for trade:', error);
 		}
 	};
+	// console.log(forTradeFilter);
+
 	//Fetchuje karty na wymianę innych użytkowników
 	const fetchCardsFoundForTrade = async () => {
 		setSearchInput('');
@@ -146,9 +149,7 @@ const Trade = ({ logo, handleLogOut }) => {
 	useEffect(() => {
 		fetchTrades();
 	}, [userTrades]);
-	// useEffect(() => {
-	// 	console.log(tradeCardInfo);
-	// }, [tradeCardInfo]);
+
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text pb-[65px]'>
@@ -424,24 +425,29 @@ const Trade = ({ logo, handleLogOut }) => {
 									</div>
 									<FormInput
 										placeholder={'Search'}
-										value={searchInput}
-										onChange={(e) => setSearchInput(e.target.value)}
+										onChange={(e) => setForTradeFilter(e.target.value)}
 									/>
-									<p className='text-sm'>Search doesn't work yet lmao</p>
+									{/* <p className='text-sm'>Search doesn't work yet lmao</p> */}
 									<div className='flex lg:flex-wrap lg:items-center lg:justify-center gap-4 w-full lg:h-[300px] overflow-y-auto p-4 pokeball-scrollbar'>
-										{(showAllCards ? cards : cardsForTrade).map((card) => (
-											<button
-												key={card._id}
-												onClick={() => addCardToTrade(card)}
-												className='rounded-xl shrink-0 w-[100px] overflow-hidden ring-offset-main ring-offset-2 focus:outline-none focus:ring-2 focus:ring-accent1 cursor-pointer'
-											>
-												<img
-													src={card.imageUrl}
-													alt={card.name}
-													className='w-full h-full object-cover hover:scale-105 transition-transform'
-												/>
-											</button>
-										))}
+										{(showAllCards ? cards : cardsForTrade)
+											.filter((card) =>
+												card.name
+													.toLowerCase()
+													.includes(forTradeFilter.toLocaleLowerCase())
+											)
+											.map((card) => (
+												<button
+													key={card._id}
+													onClick={() => addCardToTrade(card)}
+													className='rounded-xl shrink-0 w-[100px] overflow-hidden ring-offset-main ring-offset-2 focus:outline-none focus:ring-2 focus:ring-accent1 cursor-pointer'
+												>
+													<img
+														src={card.imageUrl}
+														alt={card.name}
+														className='w-full h-full object-cover hover:scale-105 transition-transform'
+													/>
+												</button>
+											))}
 									</div>
 									<div className='flex w-full'>
 										<button
