@@ -16,6 +16,7 @@ const Chat = ({ handleLogOut }) => {
 	const [activeConversationId, setActiveConversationId] = useState(null);
 	const [socket, setSocket] = useState(null);
 	const [onlineUsers, setOnlineUsers] = useState(new Set());
+	const [isConfirmDeleteShown, setIsConfirmDeleteShown] = useState(false);
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -85,9 +86,9 @@ const Chat = ({ handleLogOut }) => {
 
 	return (
 		<>
-			<div className='min-h-screen bg-main text-text pb-[65px]'>
+			<div className='relative min-h-screen bg-main text-text pb-[65px]'>
 				<Header logo={logo} handleLogOut={handleLogOut} />
-				{!activeConversationId && (
+				{!activeConversationId && !isConfirmDeleteShown && (
 					<main className='max-w-[700px] mx-auto'>
 						<h2 className='border-b border-filling w-full px-4 py-4'>
 							<p>Chats</p>
@@ -126,6 +127,7 @@ const Chat = ({ handleLogOut }) => {
 											setActiveConversationId(conversation._id)
 										}
 										isOnline={isUserOnline}
+										setIsConfirmDeleteShown={setIsConfirmDeleteShown}
 									/>
 								);
 							})}
@@ -142,6 +144,29 @@ const Chat = ({ handleLogOut }) => {
 						sender={loggedInUser.id}
 					/>
 				)}
+				<div
+					className={`absolute ${
+						isConfirmDeleteShown ? 'top-1/5' : '-top-20'
+					}  left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-xl  z-100 transition-all duration-300 bg-filling`}
+				>
+					<div className='flex flex-col items-center justify-center gap-4 p-4'>
+						<p>Stop trainer!</p>
+						<p>
+							This Chat will be <span className='text-negative'>deleted!</span>
+						</p>
+						<div className='space-x-4'>
+							<button
+								className='underline cursor-pointer'
+								onClick={() => setIsConfirmDeleteShown(false)}
+							>
+								Cancel
+							</button>
+							<button className=' cursor-pointer bg-negative p-2 rounded-xl'>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 			<Nav handleAddCard={handleAddCard} />
 		</>

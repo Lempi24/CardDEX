@@ -12,7 +12,7 @@ import { UIContextProvider } from './contexts/UIContext';
 import { AuthContextProvider } from './contexts/AuthContext';
 function App() {
 	return (
-		<div className='w-screen h-screen overflow-x-hidden bg-main text-text'>
+		<div className='w-screen h-screen overflow-x-hidden bg-main text-text pokeball-scrollbar'>
 			<AuthContextProvider>
 				<UIContextProvider>
 					<Routes>
