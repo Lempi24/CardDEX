@@ -146,7 +146,7 @@ const Chat = ({ handleLogOut }) => {
 				)}
 				<div
 					className={`absolute ${
-						isConfirmDeleteShown ? 'top-1/5' : '-top-20'
+						isConfirmDeleteShown ? 'top-1/5' : '-top-40'
 					}  left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-xl  z-100 transition-all duration-300 bg-filling`}
 				>
 					<div className='flex flex-col items-center justify-center gap-4 p-4'>
