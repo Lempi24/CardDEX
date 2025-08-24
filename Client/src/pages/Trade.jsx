@@ -201,7 +201,7 @@ const Trade = ({ logo, handleLogOut }) => {
 							))}
 						</div>
 						<div className='h-[2px] w-full bg-filling mb-5'></div>
-						<div className='flex flex-col gap-3 max-h-1/3 overflow-y-auto pokeball-scrollbar pr-2'>
+						<div className='flex flex-col gap-3 max-h-1/3 lg:overflow-y-auto pokeball-scrollbar pr-2'>
 							<h2>Your trade cards</h2>
 							<div className='flex flex-wrap items-center justify-between gap-3'>
 								{cardsForTrade <= 0 && (
@@ -222,7 +222,7 @@ const Trade = ({ logo, handleLogOut }) => {
 						<div className='h-[2px] w-full bg-filling my-5'></div>
 						{/* Ofetruchy wymiany */}
 						<div className='space-y-10 h-full'>
-							<h2>Your trade offers</h2>
+							<h2>Your trade offers history</h2>
 							{userTrades.map((trade) => {
 								const amIProposing =
 									trade.proposingUser._id === loggedInUser.id;
@@ -428,7 +428,7 @@ const Trade = ({ logo, handleLogOut }) => {
 										onChange={(e) => setForTradeFilter(e.target.value)}
 									/>
 									{/* <p className='text-sm'>Search doesn't work yet lmao</p> */}
-									<div className='flex lg:flex-wrap lg:items-center lg:justify-center gap-4 w-full lg:h-[300px] overflow-y-auto p-4 pokeball-scrollbar'>
+									<div className='flex lg:flex-wrap lg:items-center lg:justify-center gap-4 w-full lg:h-[300px] overflow-y-auto p-4 lg:pokeball-scrollbar'>
 										{(showAllCards ? cards : cardsForTrade)
 											.filter((card) =>
 												card.name

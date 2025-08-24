@@ -8,6 +8,7 @@ import ChatActive from '../components/ChatActive';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
+import { toast } from 'react-toastify';
 const Chat = ({ handleLogOut }) => {
 	const loggedInUser = useAuth();
 	const navigate = useNavigate();
@@ -16,7 +17,10 @@ const Chat = ({ handleLogOut }) => {
 	const [activeConversationId, setActiveConversationId] = useState(null);
 	const [socket, setSocket] = useState(null);
 	const [onlineUsers, setOnlineUsers] = useState(new Set());
-	const [isConfirmDeleteShown, setIsConfirmDeleteShown] = useState(false);
+	const [isConfirmDeleteShown, setIsConfirmDeleteShown] = useState({
+		showDeletePanel: false,
+		relatedTrade: null,
+	});
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -32,6 +36,34 @@ const Chat = ({ handleLogOut }) => {
 			setConversations(response.data.fetchedConversations);
 		} catch (error) {
 			console.error('Error fetching conversations:', error);
+		}
+	};
+	const deleteConversation = async (relatedTradeId) => {
+		const token = localStorage.getItem('token');
+		if (!token) {
+			navigate('/');
+		}
+		try {
+			await axios.delete(
+				`${
+					import.meta.env.VITE_BACKEND_URL
+				}/api/conversation/delete-conversation/${relatedTradeId}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			);
+			toast.success('Chat deleted successfully!', {
+				className: 'custom-success-toast',
+			});
+			setIsConfirmDeleteShown({
+				showDeletePanel: false,
+				relatedTrade: null,
+			});
+		} catch (error) {
+			console.error('Error deleting chat:', error);
+			toast.error('Failed to delete chat, try again', {
+				className: 'custom-error-toast',
+			});
 		}
 	};
 	const closeActiveConversation = () => {
@@ -88,7 +120,7 @@ const Chat = ({ handleLogOut }) => {
 		<>
 			<div className='relative min-h-screen bg-main text-text pb-[65px]'>
 				<Header logo={logo} handleLogOut={handleLogOut} />
-				{!activeConversationId && !isConfirmDeleteShown && (
+				{!activeConversationId && !isConfirmDeleteShown.showDeletePanel && (
 					<main className='max-w-[700px] mx-auto'>
 						<h2 className='border-b border-filling w-full px-4 py-4'>
 							<p>Chats</p>
@@ -113,6 +145,7 @@ const Chat = ({ handleLogOut }) => {
 											minute: '2-digit',
 									  })
 									: '';
+
 								return (
 									<UserChats
 										key={conversation._id}
@@ -128,6 +161,7 @@ const Chat = ({ handleLogOut }) => {
 										}
 										isOnline={isUserOnline}
 										setIsConfirmDeleteShown={setIsConfirmDeleteShown}
+										relatedTrade={conversation.relatedTrade}
 									/>
 								);
 							})}
@@ -145,23 +179,33 @@ const Chat = ({ handleLogOut }) => {
 					/>
 				)}
 				<div
-					className={`absolute ${
-						isConfirmDeleteShown ? 'top-1/5' : '-top-40'
+					className={`absolute w-9/10 lg:w-fit ${
+						isConfirmDeleteShown.showDeletePanel ? 'top-1/5' : '-top-40'
 					}  left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-xl  z-100 transition-all duration-300 bg-filling`}
 				>
 					<div className='flex flex-col items-center justify-center gap-4 p-4'>
 						<p>Stop trainer!</p>
-						<p>
+						<p className='text-center'>
 							This Chat will be <span className='text-negative'>deleted!</span>
 						</p>
 						<div className='space-x-4'>
 							<button
 								className='underline cursor-pointer'
-								onClick={() => setIsConfirmDeleteShown(false)}
+								onClick={() =>
+									setIsConfirmDeleteShown({
+										showDeletePanel: false,
+										relatedTrade: null,
+									})
+								}
 							>
 								Cancel
 							</button>
-							<button className=' cursor-pointer bg-negative p-2 rounded-xl'>
+							<button
+								onClick={() =>
+									deleteConversation(isConfirmDeleteShown.relatedTrade)
+								}
+								className=' cursor-pointer bg-negative p-2 rounded-xl'
+							>
 								Delete
 							</button>
 						</div>

@@ -29,3 +29,16 @@ export const fetchMessages = async (req, res) => {
 		res.status(500).json({ message: 'Server error while fetching messages.' });
 	}
 };
+export const deleteConversation = async (req, res) => {
+	const relatedTradeId = req.params.id;
+	try {
+		const ConversationWithRelatedTradeId = Conversation.find({
+			relatedTrade: relatedTradeId,
+		});
+		await Conversation.deleteMany(ConversationWithRelatedTradeId);
+		res.status(200).json({ message: 'Conversation deleted succesfully' });
+	} catch (error) {
+		console.error('Error deleting conversation:', error);
+		res.status(500).json({ message: 'Failed to delete conversation' });
+	}
+};
