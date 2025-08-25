@@ -12,6 +12,7 @@ const ChatActive = ({
 	socket,
 	room,
 	sender,
+	userLeft,
 }) => {
 	const [messages, setMessages] = useState([]);
 	const [inputValue, setInputValue] = useState('');
@@ -20,7 +21,7 @@ const ChatActive = ({
 	const scrollContainerRef = useRef(null);
 	const isUserNearBottom = useRef(true);
 	const [isTyping, setIsTyping] = useState(false);
-
+	console.log(userLeft);
 	const sendMessage = () => {
 		if (inputValue.trim() !== '') {
 			socket.emit('send_message', { message: inputValue, room, sender });
@@ -144,6 +145,11 @@ const ChatActive = ({
 					</AnimatePresence>
 					<div ref={messagesEndRef} />
 				</div>
+				{userLeft && (
+					<p className='text-center mb-2 text-sm text-filling'>
+						{name} left the chat
+					</p>
+				)}
 				<div className='flex items-center bg-second rounded-xl p-2 shadow-lg border border-filling'>
 					<input
 						value={inputValue}
@@ -151,11 +157,15 @@ const ChatActive = ({
 						onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
 						type='text'
 						placeholder='Type a message...'
-						className='w-full bg-transparent p-2 text-text placeholder-gray-400 focus:outline-none'
+						className={`w-full bg-transparent p-2 text-text placeholder-gray-400 focus:outline-none ${
+							userLeft ? 'pointer-events-none' : ''
+						}`}
 					/>
 					<button
 						onClick={sendMessage}
-						className='shrink-0 bg-accent1 text-second rounded-lg p-2 ml-2 hover:bg-red-500 transition-colors duration-200'
+						className={`shrink-0 bg-accent1 text-second rounded-lg p-2 ml-2 hover:bg-red-500 transition-colors duration-200 ${
+							userLeft ? 'pointer-events-none' : ''
+						}`}
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'

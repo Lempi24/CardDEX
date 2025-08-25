@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
 import { toast } from 'react-toastify';
+
 const Chat = ({ handleLogOut }) => {
 	const loggedInUser = useAuth();
 	const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Chat = ({ handleLogOut }) => {
 		showDeletePanel: false,
 		relatedTrade: null,
 	});
+	const [leftConversations, setLeftConversations] = useState({});
+
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -38,6 +41,7 @@ const Chat = ({ handleLogOut }) => {
 			console.error('Error fetching conversations:', error);
 		}
 	};
+
 	const deleteConversation = async (relatedTradeId) => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -59,6 +63,7 @@ const Chat = ({ handleLogOut }) => {
 				showDeletePanel: false,
 				relatedTrade: null,
 			});
+			fetchAllConversations();
 		} catch (error) {
 			console.error('Error deleting chat:', error);
 			toast.error('Failed to delete chat, try again', {
@@ -66,10 +71,26 @@ const Chat = ({ handleLogOut }) => {
 			});
 		}
 	};
+
+	useEffect(() => {
+		if (!socket) return;
+		const handleUserLeft = (data) => {
+			setLeftConversations((prev) => ({
+				...prev,
+				[data.conversationId]: data.userLeft,
+			}));
+		};
+		socket.on('partner_left_conversation', handleUserLeft);
+		return () => {
+			socket.off('partner_left_conversation', handleUserLeft);
+		};
+	}, [socket]);
+
 	const closeActiveConversation = () => {
 		setActiveConversationId(null);
 		fetchAllConversations();
 	};
+
 	useEffect(() => {
 		fetchAllConversations();
 		const newSocket = io(import.meta.env.VITE_BACKEND_URL);
@@ -97,21 +118,24 @@ const Chat = ({ handleLogOut }) => {
 			newSocket.off('user_offline');
 		};
 	}, []);
+
 	useEffect(() => {
 		if (socket && loggedInUser) {
 			socket.emit('authenticate', loggedInUser.id);
 		}
 	}, [socket, loggedInUser]);
+
 	const activeConversation = conversations.find(
 		(conversation) => conversation._id === activeConversationId
 	);
+
 	let otherUserName = '';
 	let isOtherUserOnline = false;
+
 	if (activeConversation) {
 		const otherUser = activeConversation.participants.find(
 			(p) => p._id !== loggedInUser.id
 		);
-
 		otherUserName = otherUser.userName;
 		isOtherUserOnline = onlineUsers.has(otherUser._id);
 	}
@@ -145,7 +169,6 @@ const Chat = ({ handleLogOut }) => {
 											minute: '2-digit',
 									  })
 									: '';
-
 								return (
 									<UserChats
 										key={conversation._id}
@@ -176,6 +199,7 @@ const Chat = ({ handleLogOut }) => {
 						socket={socket}
 						room={activeConversationId}
 						sender={loggedInUser.id}
+						userLeft={!!leftConversations[activeConversationId]}
 					/>
 				)}
 				<div
@@ -216,4 +240,5 @@ const Chat = ({ handleLogOut }) => {
 		</>
 	);
 };
+
 export default Chat;

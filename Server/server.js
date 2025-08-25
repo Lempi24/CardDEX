@@ -14,7 +14,7 @@ import { Server } from 'socket.io';
 import Conversation from './models/Conversation.js';
 const app = express();
 const httpServer = createServer(app);
-const userSocketMap = new Map();
+export const userSocketMap = new Map();
 let onlineUsers = new Set();
 app.use(
 	cors({
@@ -22,7 +22,7 @@ app.use(
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	})
 );
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
 	cors: {
 		origin: '*',
 		methods: ['GET', 'POST'],
@@ -130,27 +130,31 @@ io.on('connection', (socket) => {
 		socket.emit('online_users_list', Array.from(onlineUsers));
 		socket.broadcast.emit('user_online', token);
 	});
+
 	socket.on('join_room', (roomId) => {
 		socket.join(roomId);
 	});
+
 	socket.on('leave_room', (roomId) => {
 		socket.leave(roomId);
 	});
+
 	socket.on('user_typing', (data) => {
 		socket.broadcast
 			.to(data.room)
 			.emit('receive_user_typing', { isTyping: true });
 	});
+
 	socket.on('user_stopped_typing', (data) => {
 		socket.broadcast
 			.to(data.room)
 			.emit('receive_user_typing', { isTyping: false });
 	});
+
 	socket.on('send_message', async (data) => {
 		try {
 			const conversation = await Conversation.findById(data.room);
 			const sender = data.sender;
-
 			const messageObject = {
 				content: data.message,
 				sender: sender,
@@ -178,7 +182,6 @@ io.on('connection', (socket) => {
 		}
 		if (disconnectedUserId) {
 			onlineUsers.delete(disconnectedUserId);
-
 			io.emit('user_offline', disconnectedUserId);
 		}
 		console.log('User disconnected: ', socket.id);
