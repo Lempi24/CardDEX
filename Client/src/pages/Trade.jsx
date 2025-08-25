@@ -201,7 +201,7 @@ const Trade = ({ logo, handleLogOut }) => {
 							))}
 						</div>
 						<div className='h-[2px] w-full bg-filling mb-5'></div>
-						<div className='flex flex-col gap-3 max-h-1/3 lg:overflow-y-auto pokeball-scrollbar pr-2'>
+						<div className='flex flex-col gap-3 max-h-1/3 overflow-y-auto pokeball-scrollbar pr-2'>
 							<h2>Your trade cards</h2>
 							<div className='flex flex-wrap items-center justify-between gap-3'>
 								{cardsForTrade <= 0 && (
