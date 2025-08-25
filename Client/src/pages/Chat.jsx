@@ -36,7 +36,24 @@ const Chat = ({ handleLogOut }) => {
 				}/api/conversation/fetch-conversations`,
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);
-			setConversations(response.data.fetchedConversations);
+			const fetchedConversations = response.data.fetchedConversations;
+			setConversations(fetchedConversations);
+			if (loggedInUser) {
+				const initialLeftStatus = {};
+				fetchedConversations.forEach((convo) => {
+					const otherParticipant = convo.participants.find(
+						(p) => p._id !== loggedInUser.id
+					);
+					if (
+						otherParticipant &&
+						convo.hiddenFor.includes(otherParticipant._id)
+					) {
+						initialLeftStatus[convo._id] = true;
+					}
+				});
+
+				setLeftConversations(initialLeftStatus);
+			}
 		} catch (error) {
 			console.error('Error fetching conversations:', error);
 		}
@@ -92,9 +109,15 @@ const Chat = ({ handleLogOut }) => {
 	};
 
 	useEffect(() => {
-		fetchAllConversations();
+		if (loggedInUser) {
+			fetchAllConversations();
+		}
+	}, [loggedInUser]);
+
+	useEffect(() => {
 		const newSocket = io(import.meta.env.VITE_BACKEND_URL);
 		setSocket(newSocket);
+
 		newSocket.on('connect', () => {
 			console.log('User connected to IO:', newSocket.id);
 		});
@@ -111,6 +134,7 @@ const Chat = ({ handleLogOut }) => {
 				return newUsers;
 			});
 		});
+
 		return () => {
 			newSocket.disconnect();
 			newSocket.off('online_users_list');
