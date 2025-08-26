@@ -215,7 +215,6 @@ const MainPage = () => {
 		center: { x: 0, opacity: 1 },
 		exit: (direction) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
 	};
-
 	return (
 		<>
 			<div className='min-h-screen bg-main text-text pb-[65px]'>

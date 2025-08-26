@@ -16,7 +16,7 @@ const ChatMessage = ({ avatar, isSenders, message }) => {
 						isSenders ? 'bg-second rounded-bl-xl' : 'bg-filling rounded-br-xl'
 					} rounded-t-xl`}
 				>
-					<p className='p-2 text-sm'>{message}</p>
+					<p className='p-2 chat text-3xl'>{message}</p>
 				</div>
 			</div>
 		</div>

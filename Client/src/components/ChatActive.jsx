@@ -157,7 +157,7 @@ const ChatActive = ({
 						onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
 						type='text'
 						placeholder='Type a message...'
-						className={`w-full bg-transparent p-2 text-text placeholder-gray-400 focus:outline-none ${
+						className={`w-full bg-transparent p-2 text-text placeholder-gray-400 focus:outline-none chat text-3xl ${
 							userLeft ? 'pointer-events-none' : ''
 						}`}
 					/>

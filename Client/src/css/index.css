@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
 @import 'tailwindcss';
 @theme {
 	--color-main: #1a1a2e;
@@ -19,7 +20,11 @@
 	html {
 		font-family: 'Press Start 2P', system-ui, sans-serif;
 	}
+	.chat {
+		font-family: 'Jersey 10', system-ui, sans-serif;
+	}
 }
+
 .form-input::before {
 	content: '';
 	position: absolute;
@@ -113,18 +118,19 @@
 .custom-info-toast {
 	background-color: var(--color-main) !important;
 }
-.pokeball-scrollbar::-webkit-scrollbar {
-	width: 8px;
+@media (min-width: 1024px) {
+	.pokeball-scrollbar::-webkit-scrollbar {
+		width: 8px;
+	}
+	.pokeball-scrollbar::-webkit-scrollbar-track {
+		background: var(--color-filling);
+		border-radius: 5px;
+	}
+	.pokeball-scrollbar::-webkit-scrollbar-thumb {
+		background-color: var(--color-accent1);
+		border-radius: 5px;
+	}
 }
-.pokeball-scrollbar::-webkit-scrollbar-track {
-	background: var(--color-filling);
-	border-radius: 5px;
-}
-.pokeball-scrollbar::-webkit-scrollbar-thumb {
-	background-color: var(--color-accent1);
-	border-radius: 5px;
-}
-
 .typing-indicator {
 	display: flex;
 	align-items: center;
