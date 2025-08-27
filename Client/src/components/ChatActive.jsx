@@ -6,7 +6,6 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import TypingIndicator from './TypingIndicator';
 import { toast } from 'react-toastify';
-import heic2any from 'heic2any';
 const ChatActive = ({
 	closeActiveConversation,
 	name,
@@ -245,6 +244,7 @@ const ChatActive = ({
 							if (!image) return;
 							if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
 								try {
+									const heic2any = (await import('heic2any')).default;
 									const convertedBlob = await heic2any({
 										blob: image,
 										toType: 'image/jpeg',
