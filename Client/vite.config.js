@@ -13,12 +13,4 @@ export default defineConfig({
 			'e1a9-37-248-218-81.ngrok-free.app',
 		],
 	},
-	optimizeDeps: {
-		exclude: ['heic2any'],
-	},
-	build: {
-		rollupOptions: {
-			external: ['heic2any'],
-		},
-	},
 });

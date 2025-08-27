@@ -244,8 +244,7 @@ const ChatActive = ({
 							if (!image) return;
 							if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
 								try {
-									const heic2any = (await import('heic2any')).default;
-									const convertedBlob = await heic2any({
+									const convertedBlob = await window.heic2any({
 										blob: image,
 										toType: 'image/jpeg',
 									});
