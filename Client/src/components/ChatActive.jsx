@@ -239,7 +239,6 @@ const ChatActive = ({
 						id='sendImage'
 						className='hidden'
 						accept='image/*'
-						capture='environment'
 						onChange={async (event) => {
 							const image = event.target.files[0];
 							if (!image) return;
