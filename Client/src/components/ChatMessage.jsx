@@ -14,7 +14,7 @@ const ChatMessage = ({ avatar, isSenders, message }) => {
 				<div
 					className={`${
 						isSenders ? 'bg-second rounded-bl-xl' : 'bg-filling rounded-br-xl'
-					} rounded-t-xl`}
+					} overflow-clip rounded-t-xl`}
 				>
 					{message.type === 'image' ? (
 						<img
