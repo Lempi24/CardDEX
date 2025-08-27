@@ -107,7 +107,39 @@ const ChatActive = ({
 			console.error('Error fetching messages:', error);
 		}
 	};
-
+	const handleImageUpload = async (image) => {
+		setLoadingImage(true);
+		if (!image) return;
+		if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
+			try {
+				const convertedBlob = await window.heic2any({
+					blob: image,
+					toType: 'image/jpeg',
+				});
+				const convertedImage = new File(
+					[convertedBlob],
+					image.name.replace(/\.heic$/i, '.jpg'),
+					{ type: 'image/jpeg' }
+				);
+				setLoadingImage(false);
+				setSelectedImage(convertedImage);
+			} catch (err) {
+				console.error('Error converting HEIC:', err);
+				toast.error('Nie udało się przekonwertować zdjęcia.', {
+					className: 'custom-error-toast',
+				});
+				return;
+			}
+		} else if (!image.type.startsWith('image/')) {
+			toast.error('Please select a valid image file.', {
+				className: 'custom-error-toast',
+			});
+			return;
+		} else {
+			setLoadingImage(false);
+			setSelectedImage(image);
+		}
+	};
 	useEffect(() => {
 		fetchMessages(room);
 	}, []);
@@ -248,47 +280,39 @@ const ChatActive = ({
 							userLeft ? 'pointer-events-none' : ''
 						}`}
 					/>
+					{/* Picture */}
+					<input
+						type='file'
+						id='sendPicture'
+						className='hidden'
+						capture='environment'
+						accept='image/*'
+						ref={fileInputRef}
+						onChange={(event) => {
+							handleImageUpload(event.target.files[0]);
+						}}
+					/>
+					<label
+						htmlFor='sendPicture'
+						className='shrink-0 bg-accent1 text-second rounded-lg p-2 ml-2 cursor-pointer'
+					>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 24 24'
+							className='fill-current w-6 h-6'
+						>
+							<path d='M9 3H7v2H2v16h20V5h-5V3H9zm8 4h3v12H4V7h5V5h6v2h2zm-7 2h4v2h-4V9zm4 6h-4v2h4v-2h2v-4h-2v4zm-6-4h2v4H8v-4z' />
+						</svg>
+					</label>
+					{/* Image */}
 					<input
 						type='file'
 						id='sendImage'
 						className='hidden'
 						accept='image/*'
 						ref={fileInputRef}
-						onChange={async (event) => {
-							setLoadingImage(true);
-							const image = event.target.files[0];
-							if (!image) return;
-							if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
-								try {
-									const convertedBlob = await window.heic2any({
-										blob: image,
-										toType: 'image/jpeg',
-									});
-									const convertedImage = new File(
-										[convertedBlob],
-										image.name.replace(/\.heic$/i, '.jpg'),
-										{
-											type: 'image/jpeg',
-										}
-									);
-									setLoadingImage(false);
-									setSelectedImage(convertedImage);
-								} catch (err) {
-									console.error('Error converting HEIC:', err);
-									toast.error('Nie udało się przekonwertować zdjęcia.', {
-										className: 'custom-error-toast',
-									});
-									return;
-								}
-							} else if (!image.type.startsWith('image/')) {
-								toast.error('Please select a valid image file.', {
-									className: 'custom-error-toast',
-								});
-								return;
-							} else {
-								setLoadingImage(false);
-								setSelectedImage(image);
-							}
+						onChange={(event) => {
+							handleImageUpload(event.target.files[0]);
 						}}
 					/>
 					<label
