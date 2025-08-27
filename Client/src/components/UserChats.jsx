@@ -68,7 +68,9 @@ const UserChats = ({
 									});
 								}}
 								className={`absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer transition-opacity duration-300 ${
-									isDeleteShown ? 'opacity-100' : 'opacity-0'
+									isDeleteShown
+										? 'opacity-100'
+										: 'opacity-0 pointer-events-none'
 								}`}
 							>
 								<svg
