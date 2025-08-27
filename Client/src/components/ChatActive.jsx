@@ -238,15 +238,13 @@ const ChatActive = ({
 						type='file'
 						id='sendImage'
 						className='hidden'
-						accept='image/png, image/jpeg, image/gif'
+						accept='image/*'
+						capture='environment'
 						onChange={async (event) => {
 							const image = event.target.files[0];
 							if (!image) return;
-							const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
-							if (!allowedTypes.includes(image.type)) {
-								toast.error('Please select valid image file (JPG, PNG, GIF)', {
-									className: 'custom-error-toast',
-								});
+							if (!image.type.startsWith('image/')) {
+								toast.error('Please select a valid image file.');
 								return;
 							}
 							setSelectedImage(image);
