@@ -24,6 +24,8 @@ const ChatActive = ({
 	const [isTyping, setIsTyping] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [loadingImage, setLoadingImage] = useState(false);
+	const fileInputRef = useRef(null);
 	const uploadImage = async (image) => {
 		const formData = new FormData();
 		formData.append('file', image);
@@ -198,6 +200,13 @@ const ChatActive = ({
 						{name} left the chat
 					</p>
 				)}
+				{loadingImage && (
+					<div className='relative border rounded-2xl ml-auto w-[150px] h-[150px] overflow-clip'>
+						<div className='absolute flex items-center justify-center bg-main-transparent w-full h-full'>
+							<div className='w-[50px] h-[50px] border-6 border-accent1 border-t-filling rounded-full animate-spin'></div>
+						</div>
+					</div>
+				)}
 				{selectedImage && (
 					<div className='relative border rounded-2xl ml-auto w-1/2 max-w-[150px] max-h-[150px] overflow-clip'>
 						{isUploading && (
@@ -206,7 +215,12 @@ const ChatActive = ({
 							</div>
 						)}
 						<button
-							onClick={() => setSelectedImage(null)}
+							onClick={() => {
+								setSelectedImage(null);
+								if (fileInputRef.current) {
+									fileInputRef.current.value = null;
+								}
+							}}
 							className='absolute right-0 border rounded-full border-accent1 bg-main cursor-pointer'
 						>
 							<svg
@@ -239,7 +253,9 @@ const ChatActive = ({
 						id='sendImage'
 						className='hidden'
 						accept='image/*'
+						ref={fileInputRef}
 						onChange={async (event) => {
+							setLoadingImage(true);
 							const image = event.target.files[0];
 							if (!image) return;
 							if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
@@ -255,6 +271,7 @@ const ChatActive = ({
 											type: 'image/jpeg',
 										}
 									);
+									setLoadingImage(false);
 									setSelectedImage(convertedImage);
 								} catch (err) {
 									console.error('Error converting HEIC:', err);
@@ -269,6 +286,7 @@ const ChatActive = ({
 								});
 								return;
 							} else {
+								setLoadingImage(false);
 								setSelectedImage(image);
 							}
 						}}
