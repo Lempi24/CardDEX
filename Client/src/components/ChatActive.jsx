@@ -6,6 +6,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import TypingIndicator from './TypingIndicator';
 import { toast } from 'react-toastify';
+import heic2any from 'heic2any';
 const ChatActive = ({
 	closeActiveConversation,
 	name,
@@ -242,11 +243,35 @@ const ChatActive = ({
 						onChange={async (event) => {
 							const image = event.target.files[0];
 							if (!image) return;
-							if (!image.type.startsWith('image/')) {
-								toast.error('Please select a valid image file.');
+							if (image.type === 'image/heic' || image.name.endsWith('.heic')) {
+								try {
+									const convertedBlob = await heic2any({
+										blob: image,
+										toType: 'image/jpeg',
+									});
+									const convertedImage = new File(
+										[convertedBlob],
+										image.name.replace(/\.heic$/i, '.jpg'),
+										{
+											type: 'image/jpeg',
+										}
+									);
+									setSelectedImage(convertedImage);
+								} catch (err) {
+									console.error('Error converting HEIC:', err);
+									toast.error('Nie udało się przekonwertować zdjęcia.', {
+										className: 'custom-error-toast',
+									});
+									return;
+								}
+							} else if (!image.type.startsWith('image/')) {
+								toast.error('Please select a valid image file.', {
+									className: 'custom-error-toast',
+								});
 								return;
+							} else {
+								setSelectedImage(image);
 							}
-							setSelectedImage(image);
 						}}
 					/>
 					<label
