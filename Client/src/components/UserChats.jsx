@@ -9,6 +9,7 @@ const UserChats = ({
 	isOnline,
 	setIsConfirmDeleteShown,
 	relatedTrade,
+	avatarUrl,
 }) => {
 	const [isDeleteShown, setIsDeleteShown] = useState(false);
 	const handleOnMouseEnter = () => {
@@ -41,7 +42,7 @@ const UserChats = ({
 				>
 					<div className='relative w-[50px] h-[50px] shrink-0'>
 						<img
-							src={Avatar}
+							src={avatarUrl || Avatar}
 							alt='User avatar'
 							className='w-[50px] h-[50px] rounded-full'
 						/>

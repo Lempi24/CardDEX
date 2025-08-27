@@ -6,6 +6,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import TypingIndicator from './TypingIndicator';
 import { toast } from 'react-toastify';
+import { uploadImage } from '../utils/uploadImage';
 const ChatActive = ({
 	closeActiveConversation,
 	name,
@@ -14,6 +15,7 @@ const ChatActive = ({
 	room,
 	sender,
 	userLeft,
+	avatarUrl,
 }) => {
 	const [messages, setMessages] = useState([]);
 	const [inputValue, setInputValue] = useState('');
@@ -26,23 +28,7 @@ const ChatActive = ({
 	const [isUploading, setIsUploading] = useState(false);
 	const [loadingImage, setLoadingImage] = useState(false);
 	const fileInputRef = useRef(null);
-	const uploadImage = async (image) => {
-		const formData = new FormData();
-		formData.append('file', image);
-		formData.append('upload_preset', 'ml_default');
 
-		const res = await fetch(
-			`https://api.cloudinary.com/v1_1/${
-				import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-			}/image/upload`,
-			{
-				method: 'POST',
-				body: formData,
-			}
-		);
-		const data = await res.json();
-		return data.secure_url;
-	};
 	const sendMessage = async () => {
 		const hasText = inputValue.trim() !== '';
 		const hasImage = selectedImage !== null;
@@ -185,7 +171,7 @@ const ChatActive = ({
 					</svg>
 				</button>
 				<img
-					src={Avatar}
+					src={avatarUrl || Avatar}
 					alt='User avatar'
 					className='w-[50px] h-[50px] rounded-full'
 				/>
@@ -208,7 +194,7 @@ const ChatActive = ({
 							<ChatMessage
 								key={message._id || message.timeStamp}
 								message={message}
-								avatar={Avatar}
+								avatar={avatarUrl || Avatar}
 								isSenders={isSender}
 							/>
 						);

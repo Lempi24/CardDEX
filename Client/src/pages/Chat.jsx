@@ -23,7 +23,7 @@ const Chat = ({ handleLogOut }) => {
 		relatedTrade: null,
 	});
 	const [leftConversations, setLeftConversations] = useState({});
-
+	console.log(conversations);
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -155,12 +155,13 @@ const Chat = ({ handleLogOut }) => {
 
 	let otherUserName = '';
 	let isOtherUserOnline = false;
-
+	let otherUserAvatar = '';
 	if (activeConversation) {
 		const otherUser = activeConversation.participants.find(
 			(p) => p._id !== loggedInUser.id
 		);
 		otherUserName = otherUser.userName;
+		otherUserAvatar = otherUser.avatar;
 		isOtherUserOnline = onlineUsers.has(otherUser._id);
 	}
 
@@ -209,6 +210,7 @@ const Chat = ({ handleLogOut }) => {
 										isOnline={isUserOnline}
 										setIsConfirmDeleteShown={setIsConfirmDeleteShown}
 										relatedTrade={conversation.relatedTrade}
+										avatarUrl={otherParticipant?.avatar}
 									/>
 								);
 							})}
@@ -224,6 +226,7 @@ const Chat = ({ handleLogOut }) => {
 						room={activeConversationId}
 						sender={loggedInUser.id}
 						userLeft={!!leftConversations[activeConversationId]}
+						avatarUrl={otherUserAvatar}
 					/>
 				)}
 				<div

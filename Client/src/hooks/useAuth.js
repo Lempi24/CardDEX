@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 const useAuth = () => {
@@ -9,7 +9,7 @@ const useAuth = () => {
 			const token = localStorage.getItem('token');
 			if (token) {
 				const decodedToken = jwtDecode(token);
-
+				console.log(decodedToken);
 				setAuth({
 					id: decodedToken.id,
 					userName: decodedToken.userName,

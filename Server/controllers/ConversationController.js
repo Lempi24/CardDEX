@@ -9,6 +9,7 @@ export const fetchUserConversations = async (req, res) => {
 			hiddenFor: { $ne: userId },
 		})
 			.populate('participants', 'userName')
+			.populate('participants', 'userName avatar')
 			.sort({ createdAt: -1 });
 
 		res.status(200).json({ fetchedConversations: conversations });

@@ -54,3 +54,34 @@ export const loginUser = async (req, res) => {
 		res.status(500).json({ message: 'Server error' });
 	}
 };
+export const getUserData = async (req, res) => {
+	const userId = req.user._id;
+	try {
+		const userData = await User.findById(userId);
+
+		res.status(200).json({ userData });
+	} catch (error) {
+		console.error("Error fetching user's data:", error);
+		res.status(500).json({ message: 'Server error while fetching data.' });
+	}
+};
+export const updateUserAvatar = async (req, res) => {
+	const { url } = req.body;
+	const userId = req.user._id;
+	try {
+		const user = await User.findOne({
+			_id: userId,
+		});
+		if (!user) {
+			return res.status(404).json({ message: 'User not found' });
+		}
+		user.avatar = url;
+		await user.save();
+		res.status(200).json({
+			message: 'Avatar updated successfully',
+		});
+	} catch (error) {
+		console.error('Error updating avatar:', error);
+		res.status(500).json({ message: 'Failed to update avatar' });
+	}
+};

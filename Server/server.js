@@ -7,6 +7,7 @@ import authRoute from './routes/UserRoutes.js';
 import cardsRoute from './routes/CardRoutes.js';
 import tradeRoute from './routes/TradeRoutes.js';
 import conversationRoute from './routes/ConversationRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
 import { connectDB } from './config/database.js';
 import { authenticateToken } from './middleware/auth.js';
 import { createServer } from 'http';
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/cards', authenticateToken, cardsRoute);
 app.use('/api/trades', authenticateToken, tradeRoute);
 app.use('/api/conversation', authenticateToken, conversationRoute);
+app.use('/api/users', authenticateToken, userRoutes);
 //scrape samej ceny karty
 app.post('/api/scrape-price', async (req, res) => {
 	const { cardName, filter, language } = req.body;
