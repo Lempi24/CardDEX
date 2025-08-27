@@ -156,7 +156,8 @@ io.on('connection', (socket) => {
 			const conversation = await Conversation.findById(data.room);
 			const sender = data.sender;
 			const messageObject = {
-				content: data.message,
+				content: data.message.content,
+				type: data.message.type,
 				sender: sender,
 			};
 			conversation.messages.push(messageObject);

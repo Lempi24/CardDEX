@@ -161,6 +161,9 @@ const Trade = ({ logo, handleLogOut }) => {
 								placeholder={'Search'}
 								value={searchInput}
 								onChange={(e) => setSearchInput(e.target.value)}
+								onKeyPress={(e) =>
+									e.key === 'Enter' && fetchCardsFoundForTrade()
+								}
 							/>
 							<button
 								onClick={fetchCardsFoundForTrade}

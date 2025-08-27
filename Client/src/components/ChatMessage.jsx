@@ -16,7 +16,15 @@ const ChatMessage = ({ avatar, isSenders, message }) => {
 						isSenders ? 'bg-second rounded-bl-xl' : 'bg-filling rounded-br-xl'
 					} rounded-t-xl`}
 				>
-					<p className='p-2 chat text-3xl'>{message}</p>
+					{message.type === 'image' ? (
+						<img
+							src={message.content}
+							alt='Wysłany obrazek'
+							className='max-w-[150px]'
+						/>
+					) : (
+						<p className='p-2 chat text-3xl'>{message.content}</p>
+					)}
 				</div>
 			</div>
 		</div>

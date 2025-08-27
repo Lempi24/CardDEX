@@ -81,7 +81,9 @@ const UserChats = ({
 							</button>
 						</div>
 						<div className='flex items-center justify-between'>
-							<p className='truncate text-sm text-gray-400'>{lastMessage}</p>
+							<p className='truncate text-gray-400 chat text-xl ml-1'>
+								{lastMessage}
+							</p>
 							{/* Kropeczka z nie przeczytanymi wiadomościami. Potem ogarnę tę funkcjonalność */}
 							{/* <div className='flex items-center justify-center w-[20px] h-[20px] bg-accent2 rounded-full shrink-0 ml-2'>
 						<p className='text-[0.7rem]'>{notSeenMessages}</p>
