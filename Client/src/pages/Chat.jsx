@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuth from '../hooks/useAuth';
 import { toast } from 'react-toastify';
+import UserChatsSkeleton from '../components/UserChatsSkeleton';
 
 const Chat = ({ handleLogOut }) => {
 	const loggedInUser = useAuth();
@@ -23,6 +24,7 @@ const Chat = ({ handleLogOut }) => {
 		relatedTrade: null,
 	});
 	const [leftConversations, setLeftConversations] = useState({});
+	const [loading, setLoading] = useState(true);
 	console.log(conversations);
 	const fetchAllConversations = async () => {
 		const token = localStorage.getItem('token');
@@ -56,6 +58,8 @@ const Chat = ({ handleLogOut }) => {
 			}
 		} catch (error) {
 			console.error('Error fetching conversations:', error);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -175,45 +179,50 @@ const Chat = ({ handleLogOut }) => {
 							<p>Chats</p>
 						</h2>
 						<div className=' px-4 mt-4 space-y-5'>
-							{conversations.map((conversation) => {
-								const otherParticipant = conversation.participants.find(
-									(p) => p._id !== loggedInUser.id
-								);
-								const isUserOnline = otherParticipant
-									? onlineUsers.has(otherParticipant._id)
-									: false;
-								const conversationUserName =
-									conversation.participants[0]._id === loggedInUser.id
-										? conversation.participants[1].userName
-										: conversation.participants[0].userName;
-								const lastMsgTime = conversation.messages.at(-1)?.createdAt
-									? new Date(
-											conversation.messages.at(-1).createdAt
-									  ).toLocaleTimeString([], {
-											hour: '2-digit',
-											minute: '2-digit',
-									  })
-									: '';
-								return (
-									<UserChats
-										key={conversation._id}
-										name={conversationUserName}
-										lastMessage={
-											conversation.messages[conversation.messages.length - 1]
-												?.content || 'No messages yet'
-										}
-										lastMessageTime={lastMsgTime}
-										notSeenMessages={'2'}
-										fetchActiveConversationId={() =>
-											setActiveConversationId(conversation._id)
-										}
-										isOnline={isUserOnline}
-										setIsConfirmDeleteShown={setIsConfirmDeleteShown}
-										relatedTrade={conversation.relatedTrade}
-										avatarUrl={otherParticipant?.avatar}
-									/>
-								);
-							})}
+							{loading
+								? Array.from({ length: 5 }).map((_, i) => (
+										<UserChatsSkeleton key={i} />
+								  ))
+								: conversations.map((conversation) => {
+										const otherParticipant = conversation.participants.find(
+											(p) => p._id !== loggedInUser.id
+										);
+										const isUserOnline = otherParticipant
+											? onlineUsers.has(otherParticipant._id)
+											: false;
+										const conversationUserName =
+											conversation.participants[0]._id === loggedInUser.id
+												? conversation.participants[1].userName
+												: conversation.participants[0].userName;
+										const lastMsgTime = conversation.messages.at(-1)?.createdAt
+											? new Date(
+													conversation.messages.at(-1).createdAt
+											  ).toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+											  })
+											: '';
+										return (
+											<UserChats
+												key={conversation._id}
+												name={conversationUserName}
+												lastMessage={
+													conversation.messages[
+														conversation.messages.length - 1
+													]?.content || 'No messages yet'
+												}
+												lastMessageTime={lastMsgTime}
+												notSeenMessages={'2'}
+												fetchActiveConversationId={() =>
+													setActiveConversationId(conversation._id)
+												}
+												isOnline={isUserOnline}
+												setIsConfirmDeleteShown={setIsConfirmDeleteShown}
+												relatedTrade={conversation.relatedTrade}
+												avatarUrl={otherParticipant?.avatar}
+											/>
+										);
+								  })}
 						</div>
 					</main>
 				)}
