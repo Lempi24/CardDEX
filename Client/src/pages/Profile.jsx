@@ -151,8 +151,8 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 					) : (
 						<>
 							<div className=' bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10'>
-								<div className='relative w-[100px] h-[100px] rounded-full border-4 border-accent1'>
-									<div className='relative w-full h-full rounded-full overflow-hidden'>
+								<div className='relative rounded-full border-4 border-accent1'>
+									<div className='relative w-[100px] h-[100px] rounded-full overflow-hidden'>
 										{isAvatarUploading && (
 											<div className='absolute flex items-center justify-center bg-main-transparent w-full h-full'>
 												<div className='w-[50px] h-[50px] border-6 border-accent1 border-t-filling rounded-full animate-spin'></div>
@@ -161,7 +161,7 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 										<img
 											src={previewAvatar || userData.avatar || Avatar}
 											alt='User avatar'
-											className='w-full h-full object-contain'
+											className='w-[100px] h-[100px]'
 										/>
 									</div>
 									<input
