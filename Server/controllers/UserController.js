@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import Card from '../models/Card.js';
+import Trade from '../models/Trade.js';
 dotenv.config();
 export const registerUser = async (req, res) => {
 	try {
@@ -57,8 +59,28 @@ export const loginUser = async (req, res) => {
 export const getUserData = async (req, res) => {
 	const userId = req.user._id;
 	try {
-		const userData = await User.findById(userId);
-
+		const user = await User.findById(userId).select('-password');
+		const cards = await Card.find({ ownerId: userId });
+		const cardsCount = cards.length;
+		const tradeCardsCount = await Card.countDocuments({
+			ownerId: userId,
+			isForTrade: true,
+		});
+		const cardsValue = cards.reduce(
+			(sum, card) => sum + parseFloat(card.price || '0'),
+			0
+		);
+		const acceptedTrades = await Trade.countDocuments({
+			$or: [{ proposingUser: userId }, { receivingUser: userId }],
+			status: 'accepted',
+		});
+		const userData = {
+			...user.toObject(),
+			cardsCount,
+			tradeCardsCount,
+			cardsValue,
+			acceptedTrades,
+		};
 		res.status(200).json({ userData });
 	} catch (error) {
 		console.error("Error fetching user's data:", error);

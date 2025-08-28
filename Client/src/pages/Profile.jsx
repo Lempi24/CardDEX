@@ -24,6 +24,7 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);
 			setUserData(response.data.userData);
+			console.log(response.data.userData);
 		} catch (error) {
 			console.error('Error fetching user data:', error);
 		} finally {
@@ -118,73 +119,117 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 						<p>Profile</p>
 					</h2>
 					{loading ? (
-						<div className='bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10 animate-pulse'>
-							<div className='relative w-[100px] h-[100px] rounded-full bg-gray-600' />
+						<>
+							<div className='bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10 animate-pulse'>
+								<div className='relative w-[100px] h-[100px] rounded-full bg-second' />
 
-							<div className='flex flex-col items-center gap-2 w-full'>
-								<div className='h-5 bg-gray-600 rounded w-1/3' />
-								<div className='h-3 bg-gray-600 rounded w-1/2' />
-							</div>
-						</div>
-					) : (
-						<div className=' bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10'>
-							<div className='relative w-[100px] h-[100px] rounded-full border-4 border-accent1'>
-								<div className='relative w-full h-full rounded-full overflow-hidden'>
-									{isAvatarUploading && (
-										<div className='absolute flex items-center justify-center bg-main-transparent w-full h-full'>
-											<div className='w-[50px] h-[50px] border-6 border-accent1 border-t-filling rounded-full animate-spin'></div>
-										</div>
-									)}
-									<img
-										src={previewAvatar || userData.avatar || Avatar}
-										alt='User avatar'
-										className='w-full h-full object-contain'
-									/>
+								<div className='flex flex-col items-center gap-2 w-full'>
+									<div className='h-5 bg-second rounded w-1/3' />
+									<div className='h-3 bg-second rounded w-1/2' />
 								</div>
-								<input
-									type='file'
-									name=''
-									id='avatar'
-									className='hidden'
-									accept='image/*'
-									onChange={(event) => {
-										const image = event.target.files[0];
-										handleImageUpload(image);
-									}}
-								/>
-								<label
-									htmlFor='avatar'
-									className='absolute right-0 bottom-0 cursor-pointer bg-second rounded-2xl p-1'
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 24 24'
-										className='fill-accent1 w-[25px] h-[25px]'
+							</div>
+							<div className='bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10 animate-pulse'>
+								<div className='h-5 bg-second rounded w-1/2 self-start' />
+								<div className='flex items-center justify-between gap-2 w-full'>
+									<div className='h-3 bg-second rounded w-1/3' />
+									<div className='h-3 bg-second rounded w-1/3' />
+								</div>
+								<div className='flex items-center justify-between gap-2 w-full'>
+									<div className='h-3 bg-second rounded w-1/3' />
+									<div className='h-3 bg-second rounded w-1/3' />
+								</div>
+								<div className='flex items-center justify-between gap-2 w-full'>
+									<div className='h-3 bg-second rounded w-1/3' />
+									<div className='h-3 bg-second rounded w-1/3' />
+								</div>
+								<div className='flex items-center justify-between gap-2 w-full'>
+									<div className='h-3 bg-second rounded w-1/3' />
+									<div className='h-3 bg-second rounded w-1/3' />
+								</div>
+							</div>
+						</>
+					) : (
+						<>
+							<div className=' bg-filling flex flex-col items-center gap-4 p-4 rounded-2xl w-9/10'>
+								<div className='relative w-[100px] h-[100px] rounded-full border-4 border-accent1'>
+									<div className='relative w-full h-full rounded-full overflow-hidden'>
+										{isAvatarUploading && (
+											<div className='absolute flex items-center justify-center bg-main-transparent w-full h-full'>
+												<div className='w-[50px] h-[50px] border-6 border-accent1 border-t-filling rounded-full animate-spin'></div>
+											</div>
+										)}
+										<img
+											src={previewAvatar || userData.avatar || Avatar}
+											alt='User avatar'
+											className='w-full h-full object-contain'
+										/>
+									</div>
+									<input
+										type='file'
+										name=''
+										id='avatar'
+										className='hidden'
+										accept='image/*'
+										onChange={(event) => {
+											const image = event.target.files[0];
+											handleImageUpload(image);
+										}}
+									/>
+									<label
+										htmlFor='avatar'
+										className='absolute right-0 bottom-0 cursor-pointer bg-second rounded-2xl p-1'
 									>
-										<path d='M18 2h-2v2h2V2zM4 4h6v2H4v14h14v-6h2v8H2V4h2zm4 8H6v6h6v-2h2v-2h-2v2H8v-4zm4-2h-2v2H8v-2h2V8h2V6h2v2h-2v2zm2-6h2v2h-2V4zm4 0h2v2h2v2h-2v2h-2v2h-2v-2h2V8h2V6h-2V4zm-4 8h2v2h-2v-2z' />
-									</svg>
-								</label>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 24 24'
+											className='fill-accent1 w-[25px] h-[25px]'
+										>
+											<path d='M18 2h-2v2h2V2zM4 4h6v2H4v14h14v-6h2v8H2V4h2zm4 8H6v6h6v-2h2v-2h-2v2H8v-4zm4-2h-2v2H8v-2h2V8h2V6h2v2h-2v2zm2-6h2v2h-2V4zm4 0h2v2h2v2h-2v2h-2v2h-2v-2h2V8h2V6h-2V4zm-4 8h2v2h-2v-2z' />
+										</svg>
+									</label>
+								</div>
+								{previewAvatar && (
+									<button
+										onClick={() => changeUserAvatar()}
+										className=' bg-accent1 rounded-2xl p-2 cursor-pointer text-second'
+									>
+										Change
+									</button>
+								)}
+								<div className='flex flex-col items-center gap-2'>
+									<h2 className='font-bold text-lg'>{userData.userName}</h2>
+									<p className='text-[0.7rem]'>
+										Joined:
+										{new Date(userData.createdAt).toLocaleDateString('en-EN', {
+											year: 'numeric',
+											month: 'long',
+											day: 'numeric',
+										})}
+									</p>
+								</div>
 							</div>
-							{previewAvatar && (
-								<button
-									onClick={() => changeUserAvatar()}
-									className=' bg-accent1 rounded-2xl p-2 cursor-pointer text-second'
-								>
-									Change
-								</button>
-							)}
-							<div className='flex flex-col items-center gap-2'>
-								<h2 className='font-bold text-lg'>{userData.userName}</h2>
-								<p className='text-[0.7rem]'>
-									Joined:
-									{new Date(userData.createdAt).toLocaleDateString('en-EN', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-									})}
-								</p>
+							<div className=' bg-filling flex flex-col gap-4 p-4 rounded-2xl w-9/10'>
+								<h2 className=' border-b border-main'>Statistics</h2>
+								<div className='flex items-center justify-between text-[.8rem]'>
+									<p>CardDEX Value:</p>
+									<p className=''>
+										~ {Number(userData.cardsValue).toFixed(2)} PLN
+									</p>
+								</div>
+								<div className='flex items-center justify-between text-[.8rem]'>
+									<p>Total cards:</p>
+									<p>{userData.cardsCount}</p>
+								</div>
+								<div className='flex items-center justify-between text-[.8rem]'>
+									<p>Cards for Trade:</p>
+									<p>{userData.tradeCardsCount}</p>
+								</div>
+								<div className='flex items-center justify-between text-[.8rem]'>
+									<p>Accepted Trades: </p>
+									<p>{userData.acceptedTrades}</p>
+								</div>
 							</div>
-						</div>
+						</>
 					)}
 				</main>
 			</div>
