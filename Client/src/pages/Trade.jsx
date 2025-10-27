@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { fetchMyCards } from '../services/cardApi';
 import { toast } from 'react-toastify';
+import { fetchUserTradeCards } from '../services/tradeCardApi';
 const Trade = ({ logo, handleLogOut }) => {
 	const [cardsForTrade, setCardsForTrade] = useState([]);
 	const [tradeSearchResults, setTradeSearchResults] = useState([]);
@@ -24,18 +25,7 @@ const Trade = ({ logo, handleLogOut }) => {
 	const [forTradeFilter, setForTradeFilter] = useState('');
 	const loggedInUser = useAuth();
 	//Fetchuje karty które user ma na wymianę
-	const fetchUserTradeCards = async () => {
-		try {
-			const token = localStorage.getItem('token');
-			const response = await axios.get(
-				`${import.meta.env.VITE_BACKEND_URL}/api/cards/cards-for-trade`,
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
-			setCardsForTrade(response.data.cardsForTrade);
-		} catch (error) {
-			console.error('Error fetching user cards for trade:', error);
-		}
-	};
+
 	// console.log(forTradeFilter);
 
 	//Fetchuje karty na wymianę innych użytkowników
@@ -144,7 +134,11 @@ const Trade = ({ logo, handleLogOut }) => {
 		handleAddCardForTrade();
 	}, [isTradePanelVisiable.addCardForTrade, showAllCards]);
 	useEffect(() => {
-		fetchUserTradeCards();
+		const loadCardsForTrade = async () => {
+			const userCardsForTrade = await fetchUserTradeCards();
+			setCardsForTrade(userCardsForTrade);
+		};
+		loadCardsForTrade();
 	}, []);
 	useEffect(() => {
 		fetchTrades();
@@ -228,7 +222,7 @@ const Trade = ({ logo, handleLogOut }) => {
 							<h2>Your trade offers history</h2>
 							{userTrades.map((trade) => {
 								const amIProposing =
-									trade.proposingUser._id === loggedInUser.id;
+									trade.proposingUser?._id === loggedInUser?.id;
 								const myCard = amIProposing
 									? trade.offeredCard
 									: trade.requestedCard;
@@ -430,7 +424,6 @@ const Trade = ({ logo, handleLogOut }) => {
 										placeholder={'Search'}
 										onChange={(e) => setForTradeFilter(e.target.value)}
 									/>
-									{/* <p className='text-sm'>Search doesn't work yet lmao</p> */}
 									<div className='flex lg:flex-wrap lg:items-center lg:justify-center gap-4 w-full lg:h-[300px] overflow-y-auto p-4 lg:pokeball-scrollbar'>
 										{(showAllCards ? cards : cardsForTrade)
 											.filter((card) =>

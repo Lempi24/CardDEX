@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { uploadImage } from '../utils/uploadImage';
 import { toast } from 'react-toastify';
+import { fetchUserTradeCards } from '../services/tradeCardApi';
 const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 	const [newAvatar, setNewAvatar] = useState(null);
 	const [previewAvatar, setPreviewAvatar] = useState(null);
@@ -13,6 +14,7 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(true);
 	const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+	const [cardsForTrade, setCardsForTrade] = useState([]);
 	const getUserData = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) {
@@ -108,6 +110,11 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 		}
 	};
 	useEffect(() => {
+		const loadCardsForTrade = async () => {
+			const userCardsForTrade = await fetchUserTradeCards();
+			setCardsForTrade(userCardsForTrade);
+		};
+		loadCardsForTrade();
 		getUserData();
 	}, []);
 	return (
@@ -210,23 +217,44 @@ const Profile = ({ logo, handleLogOut, handleAddCard }) => {
 							</div>
 							<div className=' bg-filling flex flex-col gap-4 p-4 rounded-2xl w-9/10'>
 								<h2 className=' border-b border-main'>Statistics</h2>
-								<div className='flex items-center justify-between text-[.8rem]'>
-									<p>CardDEX Value:</p>
-									<p className=''>
-										~ {Number(userData.cardsValue).toFixed(2)} PLN
-									</p>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-center'>
+									<div className='bg-main p-3 rounded-lg'>
+										<p className='text-filling text-sm'>CardDEX Value</p>
+										<p className='font-bold text-lg '>
+											~ {Number(userData.cardsValue).toFixed(2)} PLN
+										</p>
+									</div>
+									<div className='bg-main p-3 rounded-lg'>
+										<p className='text-filling text-sm'>Total cards</p>
+										<p className='font-bold text-lg'>{userData.cardsCount}</p>
+									</div>
+									<div className='bg-main p-3 rounded-lg'>
+										<p className='text-filling text-sm'>Cards for Trade</p>
+										<p className='font-bold text-lg'>
+											{userData.tradeCardsCount}
+										</p>
+									</div>
+									<div className='bg-main p-3 rounded-lg'>
+										<p className='text-filling text-sm'>Accepted Trades</p>
+										<p className='font-bold text-lg'>
+											{userData.acceptedTrades}
+										</p>
+									</div>
 								</div>
-								<div className='flex items-center justify-between text-[.8rem]'>
-									<p>Total cards:</p>
-									<p>{userData.cardsCount}</p>
-								</div>
-								<div className='flex items-center justify-between text-[.8rem]'>
-									<p>Cards for Trade:</p>
-									<p>{userData.tradeCardsCount}</p>
-								</div>
-								<div className='flex items-center justify-between text-[.8rem]'>
-									<p>Accepted Trades: </p>
-									<p>{userData.acceptedTrades}</p>
+							</div>
+							<div className=' bg-filling flex flex-col gap-4 p-4 rounded-2xl w-9/10'>
+								<h2 className=' border-b border-main'>Cards for trade:</h2>
+								<div className='flex gap-2 overflow-auto pokeball-scrollbar pb-2'>
+									{cardsForTrade.map((card) => {
+										return (
+											<img
+												src={card.imageUrl}
+												alt={`Trading card`}
+												className='w-[120px] h-[168px] rounded-xl object-cover object-center shadow-xl border border-white/10 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-purple-500/25'
+												loading='lazy'
+											/>
+										);
+									})}
 								</div>
 							</div>
 						</>
